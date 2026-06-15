@@ -18,8 +18,8 @@ export const handleChat = async (req, res) => {
     }
 
     // Context preparation: load some of user's files and folders to make the AI smart about their docs!
-    const folders = await Folder.find({ owner: userId }).limit(10).lean();
-    const documents = await Document.find({ owner: userId }).limit(10).lean();
+    const folders = await Folder.find({ owner: userId }).limit(5).lean();
+    const documents = await Document.find({ owner: userId }).limit(5).lean();
 
     const folderNames = folders.map(f => f.name).join(', ');
     const docNames = documents.map(d => d.fileName).join(', ');
@@ -30,7 +30,7 @@ Dưới đây là một số tài liệu và thư mục hiện có của sinh vi
 - Các thư mục học tập hiện có: [${folderNames || 'Chưa có thư mục nào'}]
 - Các tài liệu đã tải lên gần đây: [${docNames || 'Chưa có tài liệu nào'}]
 
-Hãy trả lời một cách thân thiện, hữu ích, xúc tích bằng tiếng Việt. Định dạng câu trả lời bằng Markdown nếu cần thiết (dùng in đậm, gạch đầu dòng, etc).`;
+Hãy trả lời một cách CỰC KỲ ngắn gọn, súc tích, đi thẳng vào vấn đề chính. Không chào hỏi rườm rà, không giải thích dông dài để tiết kiệm tối đa token sử dụng. Định dạng câu trả lời bằng Markdown nếu cần thiết (dùng in đậm, gạch đầu dòng, vv).`;
 
     // Construct request payload matching Google Gemini API format
     const contents = [];
@@ -58,7 +58,12 @@ Hãy trả lời một cách thân thiện, hữu ích, xúc tích bằng tiến
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ contents })
+        body: JSON.stringify({ 
+          contents,
+          generationConfig: {
+            maxOutputTokens: 300
+          }
+        })
       }
     );
 

@@ -398,8 +398,8 @@ async function sendAiMessage(e) {
     aiChatHistory.push({ role: 'user', text: msgText });
     aiChatHistory.push({ role: 'model', text: data.reply });
 
-    if (aiChatHistory.length > 12) {
-      aiChatHistory = aiChatHistory.slice(aiChatHistory.length - 12);
+    if (aiChatHistory.length > 6) {
+      aiChatHistory = aiChatHistory.slice(aiChatHistory.length - 6);
     }
   } catch (err) {
     console.error(err);
