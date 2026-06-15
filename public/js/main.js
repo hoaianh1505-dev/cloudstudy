@@ -281,24 +281,119 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Handle all file upload forms to show spinner and disable double submission
+  // Handle all file upload forms to show progress and allow cancel
   const uploadForms = document.querySelectorAll('form[enctype="multipart/form-data"]');
   uploadForms.forEach(form => {
-    form.addEventListener('submit', () => {
-      const submitBtn = form.querySelector('[type="submit"]');
-      const cancelBtn = form.querySelector('[data-bs-dismiss="modal"]');
-      const closeBtn = form.closest('.modal')?.querySelector('.btn-close');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault(); // Stop standard redirect/submit
       
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Đang tải lên...';
+      const fileInput = form.querySelector('input[type="file"]');
+      if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        return;
       }
-      if (cancelBtn) {
-        cancelBtn.disabled = true;
+
+      const footer = form.querySelector('.modal-footer');
+      const closeBtn = form.closest('.modal')?.querySelector('.btn-close');
+      const progressContainer = document.getElementById('uploadProgressContainer');
+      const progressBar = document.getElementById('uploadProgressBar');
+      const progressPercent = document.getElementById('uploadProgressPercent');
+      const progressStatusText = document.getElementById('uploadProgressStatusText');
+      const formGroups = form.querySelectorAll('.modal-body > .mb-3');
+
+      // Hide inputs and footer, show progress bar
+      formGroups.forEach(el => {
+        if (el.id !== 'uploadProgressContainer') el.classList.add('d-none');
+      });
+      if (footer) footer.classList.add('d-none');
+      if (closeBtn) closeBtn.style.pointerEvents = 'none'; // Lock close
+      if (progressContainer) progressContainer.classList.remove('d-none');
+      if (progressBar) {
+        progressBar.style.width = '0%';
+        progressBar.setAttribute('aria-valuenow', 0);
       }
-      if (closeBtn) {
-        closeBtn.style.pointerEvents = 'none'; // Prevent closing
+      if (progressPercent) progressPercent.textContent = '0%';
+      if (progressStatusText) progressStatusText.textContent = 'Đang chuẩn bị file...';
+
+      const formData = new FormData(form);
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', form.action, true);
+
+      // Helper to reset the form view on cancel/error
+      const resetForm = () => {
+        formGroups.forEach(el => {
+          if (el.id !== 'uploadProgressContainer') el.classList.remove('d-none');
+        });
+        if (progressContainer) progressContainer.classList.add('d-none');
+        if (footer) footer.classList.remove('d-none');
+        if (closeBtn) closeBtn.style.pointerEvents = 'auto';
+        if (fileInput) fileInput.value = '';
+      };
+
+      // Progress listener
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const percent = Math.round((event.loaded / event.total) * 100);
+          if (progressStatusText) progressStatusText.textContent = 'Đang tải lên đám mây...';
+          if (progressBar) {
+            progressBar.style.width = percent + '%';
+            progressBar.setAttribute('aria-valuenow', percent);
+          }
+          if (progressPercent) {
+            progressPercent.textContent = percent + '%';
+          }
+        }
+      });
+
+      // Complete listener
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          // Success! Redirect to the destination page
+          window.location.href = xhr.responseURL || '/folders';
+        } else {
+          let errMsg = 'Đã xảy ra lỗi khi tải lên tài liệu.';
+          try {
+            const resData = JSON.parse(xhr.responseText);
+            errMsg = resData.error || errMsg;
+          } catch (e) {}
+          Swal.fire({
+            title: 'Lỗi!',
+            text: errMsg,
+            icon: 'error',
+            ...getSwalConfig()
+          });
+          resetForm();
+        }
+      };
+
+      // Error listener
+      xhr.onerror = () => {
+        Swal.fire({
+          title: 'Lỗi kết nối!',
+          text: 'Không thể kết nối tới máy chủ.',
+          icon: 'error',
+          ...getSwalConfig()
+        });
+        resetForm();
+      };
+
+      // Cancel button listener
+      const cancelUploadBtn = document.getElementById('cancelUploadBtn');
+      if (cancelUploadBtn) {
+        cancelUploadBtn.onclick = () => {
+          xhr.abort();
+          Swal.fire({
+            title: 'Đã hủy!',
+            text: 'Tiến trình tải lên đã được hủy bỏ.',
+            icon: 'info',
+            timer: 1500,
+            showConfirmButton: false,
+            ...getSwalConfig()
+          });
+          resetForm();
+        };
       }
+
+      xhr.send(formData);
     });
   });
 
