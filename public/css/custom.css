@@ -380,7 +380,7 @@ h1, h2, h3, h4, h5, h6, .brand-font {
   color: #f1f5f9;
 }
 
-[data-theme="dark"] .modal-header .btn-close {
+[data-theme="dark"] .btn-close {
   filter: invert(1) grayscale(1) brightness(2);
 }
 
