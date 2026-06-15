@@ -5,7 +5,8 @@ const storage = multer.memoryStorage();
 
 const allowedDocExts = ['.pdf', '.docx', '.pptx', '.xlsx', '.zip'];
 const allowedImgExts = ['.jpg', '.jpeg', '.png', '.webp'];
-const allAllowedExts = [...allowedDocExts, ...allowedImgExts];
+const allowedVidExts = ['.mp4', '.mkv', '.avi', '.mov'];
+const allAllowedExts = [...allowedDocExts, ...allowedImgExts, ...allowedVidExts];
 
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
@@ -13,7 +14,7 @@ const fileFilter = (req, file, cb) => {
   if (allAllowedExts.includes(ext)) {
     cb(null, true);
   } else {
-    cb(new Error('Định dạng file không hỗ trợ. Chỉ cho phép: PDF, DOCX, PPTX, XLSX, ZIP, JPG, JPEG, PNG, WEBP.'));
+    cb(new Error('Định dạng file không hỗ trợ. Chỉ cho phép: PDF, DOCX, PPTX, XLSX, ZIP, JPG/PNG/WEBP, hoặc các định dạng Video MP4, MKV, AVI, MOV.'));
   }
 };
 

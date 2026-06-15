@@ -219,6 +219,7 @@ h1, h2, h3, h4, h5, h6, .brand-font {
 .bg-xlsx { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
 .bg-zip { background-color: rgba(107, 114, 128, 0.1); color: #6b7280; }
 .bg-image { background-color: rgba(168, 85, 247, 0.1); color: #a855f7; }
+.bg-video { background-color: rgba(20, 184, 166, 0.1); color: #14b8a6; }
 
 /* Image previews */
 .thumbnail-preview {
