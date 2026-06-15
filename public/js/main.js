@@ -210,3 +210,114 @@ function updateThemeIcon(theme) {
   }
 }
 
+// --- AI ASSISTANT CHAT HANDLERS ---
+let aiChatHistory = [];
+
+function toggleAiChat() {
+  const chatWindow = document.getElementById('aiChatWindow');
+  if (chatWindow) {
+    chatWindow.classList.toggle('d-none');
+    if (!chatWindow.classList.contains('d-none')) {
+      const input = document.getElementById('aiChatInput');
+      if (input) input.focus();
+    }
+  }
+}
+
+function parseMarkdownToHtml(text) {
+  // Bold replacer
+  let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  // Newlines replacer
+  html = html.replace(/\n/g, '<br>');
+  // Bullet point replacer
+  html = html.replace(/^[-\*]\s+(.*?)$/gm, '• $1');
+  return html;
+}
+
+async function sendAiMessage(e) {
+  e.preventDefault();
+  const input = document.getElementById('aiChatInput');
+  const chatBody = document.getElementById('aiChatBody');
+  if (!input || !chatBody) return;
+
+  const msgText = input.value.trim();
+  if (!msgText) return;
+
+  // Append user message bubble (escaped)
+  const userBubble = document.createElement('div');
+  userBubble.className = 'd-flex gap-2 align-items-start justify-content-end mb-2';
+  userBubble.innerHTML = `
+    <div class="p-2 bg-primary text-white rounded-3" style="max-width: 85%;">
+      ${msgText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+    </div>
+  `;
+  chatBody.appendChild(userBubble);
+  input.value = '';
+  chatBody.scrollTop = chatBody.scrollHeight;
+
+  // Append thinking spinner
+  const typingBubble = document.createElement('div');
+  typingBubble.id = 'aiTypingIndicator';
+  typingBubble.className = 'd-flex gap-2 align-items-start mb-2';
+  typingBubble.innerHTML = `
+    <div class="p-2 rounded-3 border bg-light text-dark text-muted" style="max-width: 85%;">
+      <span class="spinner-grow spinner-grow-sm me-1 text-primary" role="status"></span> Đang suy nghĩ...
+    </div>
+  `;
+  chatBody.appendChild(typingBubble);
+  chatBody.scrollTop = chatBody.scrollHeight;
+
+  try {
+    const response = await fetch('/ai/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        message: msgText,
+        history: aiChatHistory
+      })
+    });
+
+    const indicator = document.getElementById('aiTypingIndicator');
+    if (indicator) indicator.remove();
+
+    const data = await response.json();
+    
+    // Append AI bubble
+    const aiBubble = document.createElement('div');
+    aiBubble.className = 'd-flex gap-2 align-items-start mb-2';
+    aiBubble.innerHTML = `
+      <div class="p-2 rounded-3 border bg-light text-dark" style="max-width: 85%;">
+        ${parseMarkdownToHtml(data.reply)}
+      </div>
+    `;
+    chatBody.appendChild(aiBubble);
+    chatBody.scrollTop = chatBody.scrollHeight;
+
+    // Track history
+    aiChatHistory.push({ role: 'user', text: msgText });
+    aiChatHistory.push({ role: 'model', text: data.reply });
+
+    if (aiChatHistory.length > 12) {
+      aiChatHistory = aiChatHistory.slice(aiChatHistory.length - 12);
+    }
+  } catch (err) {
+    console.error(err);
+    const indicator = document.getElementById('aiTypingIndicator');
+    if (indicator) indicator.remove();
+
+    const errorBubble = document.createElement('div');
+    errorBubble.className = 'd-flex gap-2 align-items-start mb-2';
+    errorBubble.innerHTML = `
+      <div class="p-2 rounded-3 border bg-danger bg-opacity-10 text-danger" style="max-width: 85%;">
+        Rất tiếc, tôi không kết nối được với Trợ lý AI. Vui lòng thử lại sau.
+      </div>
+    `;
+    chatBody.appendChild(errorBubble);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+}
+
+
