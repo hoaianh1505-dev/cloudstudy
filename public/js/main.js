@@ -277,10 +277,30 @@ document.addEventListener('DOMContentLoaded', () => {
   const createFolderForm = document.getElementById('createFolderForm');
   if (createFolderForm) {
     createFolderForm.addEventListener('submit', async (e) => {
-      // If we are using standard redirect, let it be. But let's support standard redirect.
-      // Simply regular form action is fine, no complex interceptor needed unless it's SPA.
+      // Standard submit is used
     });
   }
+
+  // Handle all file upload forms to show spinner and disable double submission
+  const uploadForms = document.querySelectorAll('form[enctype="multipart/form-data"]');
+  uploadForms.forEach(form => {
+    form.addEventListener('submit', () => {
+      const submitBtn = form.querySelector('[type="submit"]');
+      const cancelBtn = form.querySelector('[data-bs-dismiss="modal"]');
+      const closeBtn = form.closest('.modal')?.querySelector('.btn-close');
+      
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Đang tải lên...';
+      }
+      if (cancelBtn) {
+        cancelBtn.disabled = true;
+      }
+      if (closeBtn) {
+        closeBtn.style.pointerEvents = 'none'; // Prevent closing
+      }
+    });
+  });
 
   // Initial theme icon update on load
   const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
