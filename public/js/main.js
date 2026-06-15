@@ -54,11 +54,31 @@ async function generateShareLink(documentId) {
   }
 }
 
+// Helper for SweetAlert2 settings based on current theme
+function getSwalConfig() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return {
+    background: isDark ? '#111827' : '#ffffff',
+    color: isDark ? '#f1f5f9' : '#1e293b',
+    confirmButtonColor: '#6366f1',
+    cancelButtonColor: '#6b7280',
+  };
+}
+
 // Revoke share link
 async function revokeShareLink(documentId) {
-  if (!confirm('Bạn có chắc chắn muốn hủy chia sẻ tài liệu này? Liên kết chia sẻ hiện tại sẽ không thể sử dụng được nữa.')) {
-    return;
-  }
+  const result = await Swal.fire({
+    title: 'Hủy chia sẻ?',
+    text: 'Bạn có chắc chắn muốn hủy chia sẻ tài liệu này? Liên kết chia sẻ hiện tại sẽ không thể sử dụng được nữa.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Đồng ý',
+    cancelButtonText: 'Hủy',
+    ...getSwalConfig()
+  });
+
+  if (!result.isConfirmed) return;
+
   try {
     const response = await fetch('/share/delete', {
       method: 'POST',
@@ -80,20 +100,49 @@ async function revokeShareLink(documentId) {
       if (container) container.classList.add('d-none');
       if (genBtn) genBtn.classList.remove('d-none');
       if (revBtn) revBtn.classList.add('d-none');
+      
+      Swal.fire({
+        title: 'Đã hủy!',
+        text: 'Liên kết chia sẻ đã được hủy thành công.',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false,
+        ...getSwalConfig()
+      });
     } else {
-      alert('Lỗi: ' + (data.error || 'Không thể hủy chia sẻ'));
+      Swal.fire({
+        title: 'Lỗi!',
+        text: data.error || 'Không thể hủy chia sẻ',
+        icon: 'error',
+        ...getSwalConfig()
+      });
     }
   } catch (err) {
     console.error('Revoke share error:', err);
-    alert('Đã xảy ra lỗi khi hủy chia sẻ');
+    Swal.fire({
+      title: 'Lỗi!',
+      text: 'Đã xảy ra lỗi khi hủy chia sẻ',
+      icon: 'error',
+      ...getSwalConfig()
+    });
   }
 }
 
 // Delete document
 async function deleteDocument(docId, redirectUrl = '/folders') {
-  if (!confirm('Bạn có chắc chắn muốn xóa tài liệu này từ đám mây? Hành động này không thể hoàn tác.')) {
-    return;
-  }
+  const result = await Swal.fire({
+    title: 'Xóa tài liệu?',
+    text: 'Bạn có chắc chắn muốn xóa tài liệu này từ đám mây? Hành động này không thể hoàn tác.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Xóa tài liệu',
+    cancelButtonText: 'Hủy',
+    confirmButtonColor: '#ef4444',
+    ...getSwalConfig()
+  });
+
+  if (!result.isConfirmed) return;
+
   try {
     const response = await fetch(`/document/${docId}`, {
       method: 'DELETE',
@@ -106,25 +155,45 @@ async function deleteDocument(docId, redirectUrl = '/folders') {
     if (response.ok && data.success) {
       window.location.href = redirectUrl;
     } else {
-      alert('Lỗi: ' + (data.error || 'Không thể xóa tài liệu'));
+      Swal.fire({
+        title: 'Lỗi!',
+        text: data.error || 'Không thể xóa tài liệu',
+        icon: 'error',
+        ...getSwalConfig()
+      });
     }
   } catch (err) {
     console.error('Delete document error:', err);
-    alert('Đã xảy ra lỗi khi xóa tài liệu');
+    Swal.fire({
+      title: 'Lỗi!',
+      text: 'Đã xảy ra lỗi khi xóa tài liệu',
+      icon: 'error',
+      ...getSwalConfig()
+    });
   }
 }
 
 // Rename folder
 async function renameFolder(folderId, currentName) {
-  const newName = prompt('Nhập tên mới cho thư mục:', currentName);
-  if (newName === null) return; // Cancelled
-  
-  const trimmed = newName.trim();
-  if (!trimmed) {
-    alert('Tên thư mục không được để trống.');
-    return;
-  }
-  if (trimmed === currentName) return;
+  const result = await Swal.fire({
+    title: 'Đổi tên thư mục',
+    input: 'text',
+    inputValue: currentName,
+    inputPlaceholder: 'Nhập tên mới...',
+    showCancelButton: true,
+    confirmButtonText: 'Lưu',
+    cancelButtonText: 'Hủy',
+    inputValidator: (value) => {
+      if (!value || !value.trim()) {
+        return 'Tên thư mục không được để trống!';
+      }
+    },
+    ...getSwalConfig()
+  });
+
+  if (!result.isConfirmed) return;
+  const newName = result.value.trim();
+  if (newName === currentName) return;
 
   try {
     const response = await fetch(`/folder/${folderId}/rename`, {
@@ -133,26 +202,45 @@ async function renameFolder(folderId, currentName) {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify({ name: trimmed })
+      body: JSON.stringify({ name: newName })
     });
     
     const data = await response.json();
     if (response.ok && data.success) {
       window.location.reload();
     } else {
-      alert('Lỗi: ' + (data.error || 'Không thể đổi tên thư mục'));
+      Swal.fire({
+        title: 'Lỗi!',
+        text: data.error || 'Không thể đổi tên thư mục',
+        icon: 'error',
+        ...getSwalConfig()
+      });
     }
   } catch (err) {
     console.error('Rename folder error:', err);
-    alert('Đã xảy ra lỗi khi đổi tên thư mục');
+    Swal.fire({
+      title: 'Lỗi!',
+      text: 'Đã xảy ra lỗi khi đổi tên thư mục',
+      icon: 'error',
+      ...getSwalConfig()
+    });
   }
 }
 
 // Delete folder
 async function deleteFolder(folderId, redirectUrl = '/folders') {
-  if (!confirm('CẢNH BÁO CỰC KỲ QUAN TRỌNG:\nXóa thư mục này sẽ xóa TOÀN BỘ các thư mục con và TẤT CẢ các tài liệu/hình ảnh được lưu trữ bên trong trên Cloud S3!\n\nBạn có chắc chắn muốn tiếp tục không?')) {
-    return;
-  }
+  const result = await Swal.fire({
+    title: 'CẢNH BÁO CỰC KỲ QUAN TRỌNG!',
+    text: 'Xóa thư mục này sẽ xóa TOÀN BỘ các thư mục con và TẤT CẢ các tài liệu/hình ảnh được lưu trữ bên trong trên Cloud S3! Bạn có chắc chắn muốn tiếp tục không?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Vẫn xóa tất cả',
+    cancelButtonText: 'Hủy',
+    confirmButtonColor: '#ef4444',
+    ...getSwalConfig()
+  });
+
+  if (!result.isConfirmed) return;
   
   try {
     const response = await fetch(`/folder/${folderId}/delete`, {
@@ -166,11 +254,21 @@ async function deleteFolder(folderId, redirectUrl = '/folders') {
     if (response.ok && data.success) {
       window.location.href = redirectUrl;
     } else {
-      alert('Lỗi: ' + (data.error || 'Không thể xóa thư mục'));
+      Swal.fire({
+        title: 'Lỗi!',
+        text: data.error || 'Không thể xóa thư mục',
+        icon: 'error',
+        ...getSwalConfig()
+      });
     }
   } catch (err) {
     console.error('Delete folder error:', err);
-    alert('Đã xảy ra lỗi khi xóa thư mục');
+    Swal.fire({
+      title: 'Lỗi!',
+      text: 'Đã xảy ra lỗi khi xóa thư mục',
+      icon: 'error',
+      ...getSwalConfig()
+    });
   }
 }
 
