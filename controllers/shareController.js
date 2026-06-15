@@ -1,7 +1,7 @@
-const crypto = require('crypto');
-const SharedLink = require('../models/SharedLink');
-const Document = require('../models/Document');
-const s3Service = require('../services/s3Service');
+import crypto from 'crypto';
+import SharedLink from '../models/SharedLink.js';
+import Document from '../models/Document.js';
+import * as s3Service from '../services/s3Service.js';
 
 const formatBytes = (bytes, decimals = 2) => {
   if (bytes === 0) return '0 Bytes';
@@ -12,7 +12,7 @@ const formatBytes = (bytes, decimals = 2) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 };
 
-exports.createShareLink = async (req, res) => {
+export const createShareLink = async (req, res) => {
   try {
     const userId = req.session.userId;
     const { documentId } = req.body;
@@ -40,7 +40,7 @@ exports.createShareLink = async (req, res) => {
   }
 };
 
-exports.deleteShareLink = async (req, res) => {
+export const deleteShareLink = async (req, res) => {
   try {
     const userId = req.session.userId;
     const { documentId } = req.body;
@@ -58,7 +58,7 @@ exports.deleteShareLink = async (req, res) => {
   }
 };
 
-exports.viewShareLink = async (req, res) => {
+export const viewShareLink = async (req, res) => {
   try {
     const { token } = req.params;
     const sharedLink = await SharedLink.findOne({ token }).populate('documentId');
@@ -88,7 +88,7 @@ exports.viewShareLink = async (req, res) => {
   }
 };
 
-exports.downloadSharedDocument = async (req, res) => {
+export const downloadSharedDocument = async (req, res) => {
   try {
     const { token } = req.params;
     const sharedLink = await SharedLink.findOne({ token }).populate('documentId');

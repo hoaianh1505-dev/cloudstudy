@@ -1,4 +1,4 @@
-const buildFolderTree = (folders, parentId = null) => {
+export const buildFolderTree = (folders, parentId = null) => {
   return folders
     .filter(f => {
       const parentStr = f.parentFolder ? String(f.parentFolder) : null;
@@ -11,7 +11,7 @@ const buildFolderTree = (folders, parentId = null) => {
     }));
 };
 
-const renderFolderTreeHtml = (tree, activeFolderId = null) => {
+export const renderFolderTreeHtml = (tree, activeFolderId = null) => {
   if (!tree || tree.length === 0) return '';
   let html = '<ul class="folder-tree-list list-unstyled ps-3">';
   for (const node of tree) {
@@ -36,7 +36,7 @@ const renderFolderTreeHtml = (tree, activeFolderId = null) => {
   return html;
 };
 
-const getBreadcrumbs = (folderId, allFolders) => {
+export const getBreadcrumbs = (folderId, allFolders) => {
   const crumbs = [];
   let current = allFolders.find(f => String(f._id) === String(folderId));
   while (current) {
@@ -51,10 +51,4 @@ const getBreadcrumbs = (folderId, allFolders) => {
     }
   }
   return crumbs;
-};
-
-module.exports = {
-  buildFolderTree,
-  renderFolderTreeHtml,
-  getBreadcrumbs
 };

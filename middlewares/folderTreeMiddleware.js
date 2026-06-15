@@ -1,7 +1,7 @@
-const Folder = require('../models/Folder');
-const { buildFolderTree, renderFolderTreeHtml } = require('../utils/folderHelper');
+import Folder from '../models/Folder.js';
+import { buildFolderTree, renderFolderTreeHtml } from '../utils/folderHelper.js';
 
-module.exports = async (req, res, next) => {
+export default async (req, res, next) => {
   if (req.session && req.session.userId) {
     try {
       const allFolders = await Folder.find({ owner: req.session.userId }).lean();

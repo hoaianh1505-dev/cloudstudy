@@ -1,8 +1,8 @@
-const Document = require('../models/Document');
-const Folder = require('../models/Folder');
-const SharedLink = require('../models/SharedLink');
-const s3Service = require('../services/s3Service');
-const { getBreadcrumbs } = require('../utils/folderHelper');
+import Document from '../models/Document.js';
+import Folder from '../models/Folder.js';
+import SharedLink from '../models/SharedLink.js';
+import * as s3Service from '../services/s3Service.js';
+import { getBreadcrumbs } from '../utils/folderHelper.js';
 
 const formatBytes = (bytes, decimals = 2) => {
   if (bytes === 0) return '0 Bytes';
@@ -13,7 +13,7 @@ const formatBytes = (bytes, decimals = 2) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 };
 
-exports.getUploadPage = async (req, res) => {
+export const getUploadPage = async (req, res) => {
   try {
     const userId = req.session.userId;
     const folders = await Folder.find({ owner: userId }).sort({ name: 1 }).lean();
@@ -29,7 +29,7 @@ exports.getUploadPage = async (req, res) => {
   }
 };
 
-exports.postUpload = async (req, res) => {
+export const postUpload = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).render('upload', {
@@ -67,7 +67,7 @@ exports.postUpload = async (req, res) => {
   }
 };
 
-exports.getDocumentDetail = async (req, res) => {
+export const getDocumentDetail = async (req, res) => {
   try {
     const userId = req.session.userId;
     const docId = req.params.id;
@@ -104,7 +104,7 @@ exports.getDocumentDetail = async (req, res) => {
   }
 };
 
-exports.downloadDocument = async (req, res) => {
+export const downloadDocument = async (req, res) => {
   try {
     const userId = req.session.userId;
     const docId = req.params.id;
@@ -125,7 +125,7 @@ exports.downloadDocument = async (req, res) => {
   }
 };
 
-exports.deleteDocument = async (req, res) => {
+export const deleteDocument = async (req, res) => {
   try {
     const userId = req.session.userId;
     const docId = req.params.id;
@@ -151,7 +151,7 @@ exports.deleteDocument = async (req, res) => {
   }
 };
 
-exports.search = async (req, res) => {
+export const search = async (req, res) => {
   try {
     const userId = req.session.userId;
     const query = req.query.q || '';

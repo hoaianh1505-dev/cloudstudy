@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const dns = require('dns');
+import mongoose from 'mongoose';
+import dns from 'dns';
 
 // Force Node.js to use Google DNS to bypass local ISP DNS blocking for MongoDB SRV records
 try {
@@ -18,4 +18,4 @@ const connectDB = async () => {
   }
 };
 
-module.exports = connectDB;
+export default connectDB;

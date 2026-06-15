@@ -246,3 +246,62 @@ h1, h2, h3, h4, h5, h6, .brand-font {
     padding: 20px;
   }
 }
+
+/* --- VIP/PREMIUM ENHANCEMENTS --- */
+
+/* Sequenced Fade-In Slide-Up Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.main-content, .auth-card, .premium-card {
+  animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Card hover glow and violet border effects */
+.premium-card:hover {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.25) !important;
+}
+
+/* Beautiful user avatar background gradients */
+.avatar-circle {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+}
+
+/* Sleek gradient brand logo text */
+.brand-gradient {
+  background: linear-gradient(135deg, var(--primary-color) 30%, var(--secondary-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+}
+
+/* Smooth active menu item transition indicators */
+.nav-link-custom {
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-link-custom::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+  transition: width 0.3s ease;
+}
+
+.nav-link-custom:hover::after, .nav-link-custom.active::after {
+  width: 100%;
+}
+

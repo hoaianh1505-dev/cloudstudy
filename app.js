@@ -1,8 +1,14 @@
-const express = require('express');
-const session = require('express-session');
-const path = require('path');
-const connectDB = require('./config/db');
-require('dotenv').config();
+import express from 'express';
+import session from 'express-session';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import connectDB from './config/db.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -41,11 +47,11 @@ app.use((req, res, next) => {
 });
 
 // Import Routes
-const indexRoutes = require('./routes/indexRoutes');
-const authRoutes = require('./routes/authRoutes');
-const folderRoutes = require('./routes/folderRoutes');
-const documentRoutes = require('./routes/documentRoutes');
-const shareRoutes = require('./routes/shareRoutes');
+import indexRoutes from './routes/indexRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import folderRoutes from './routes/folderRoutes.js';
+import documentRoutes from './routes/documentRoutes.js';
+import shareRoutes from './routes/shareRoutes.js';
 
 // Use Routes
 app.use('/', indexRoutes);
@@ -64,6 +70,7 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT} with address: http://localhost:${PORT}`);
 });
-module.exports = app;
+
+export default app;

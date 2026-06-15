@@ -1,4 +1,4 @@
-const isAuthenticated = (req, res, next) => {
+export const isAuthenticated = (req, res, next) => {
   if (req.session && req.session.userId) {
     return next();
   }
@@ -11,14 +11,9 @@ const isAuthenticated = (req, res, next) => {
   res.redirect('/login');
 };
 
-const isGuest = (req, res, next) => {
+export const isGuest = (req, res, next) => {
   if (req.session && req.session.userId) {
     return res.redirect('/dashboard');
   }
   next();
-};
-
-module.exports = {
-  isAuthenticated,
-  isGuest
 };

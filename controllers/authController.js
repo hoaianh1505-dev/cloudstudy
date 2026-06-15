@@ -1,11 +1,11 @@
-const User = require('../models/User');
-const bcrypt = require('bcryptjs');
+import User from '../models/User.js';
+import bcrypt from 'bcryptjs';
 
-exports.getRegister = (req, res) => {
+export const getRegister = (req, res) => {
   res.render('register', { error: null, success: null });
 };
 
-exports.postRegister = async (req, res) => {
+export const postRegister = async (req, res) => {
   try {
     const { username, email, password } = req.body;
     
@@ -39,11 +39,11 @@ exports.postRegister = async (req, res) => {
   }
 };
 
-exports.getLogin = (req, res) => {
+export const getLogin = (req, res) => {
   res.render('login', { error: null, success: null });
 };
 
-exports.postLogin = async (req, res) => {
+export const postLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
     
@@ -72,7 +72,7 @@ exports.postLogin = async (req, res) => {
   }
 };
 
-exports.logout = (req, res) => {
+export const logout = (req, res) => {
   req.session.destroy((err) => {
     if (err) {
       console.error('Lỗi khi hủy session:', err);

@@ -1,5 +1,5 @@
-const Folder = require('../models/Folder');
-const Document = require('../models/Document');
+import Folder from '../models/Folder.js';
+import Document from '../models/Document.js';
 
 // Helper to format bytes
 const formatBytes = (bytes, decimals = 2) => {
@@ -11,7 +11,7 @@ const formatBytes = (bytes, decimals = 2) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 };
 
-exports.getDashboard = async (req, res) => {
+export const getDashboard = async (req, res) => {
   try {
     const userId = req.session.userId;
     
@@ -44,6 +44,7 @@ exports.getDashboard = async (req, res) => {
       totalDocuments,
       totalImages,
       totalStorage: formattedStorage,
+      totalStorageBytes,
       recentDocuments,
       formatBytes,
       title: 'Dashboard - Cloud Study Document Manager'
@@ -55,6 +56,7 @@ exports.getDashboard = async (req, res) => {
       totalDocuments: 0,
       totalImages: 0,
       totalStorage: '0 Bytes',
+      totalStorageBytes: 0,
       recentDocuments: [],
       formatBytes,
       title: 'Dashboard - Cloud Study Document Manager',

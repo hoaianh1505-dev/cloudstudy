@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const FolderSchema = new mongoose.Schema({
   name: {
@@ -25,4 +25,4 @@ const FolderSchema = new mongoose.Schema({
 // Avoid duplicate folder names under the same parent for the same user
 FolderSchema.index({ name: 1, parentFolder: 1, owner: 1 }, { unique: true });
 
-module.exports = mongoose.model('Folder', FolderSchema);
+export default mongoose.model('Folder', FolderSchema);

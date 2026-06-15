@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import * as dashboardController from '../controllers/dashboardController.js';
+import { isAuthenticated } from '../middlewares/authMiddleware.js';
+import folderTreeMiddleware from '../middlewares/folderTreeMiddleware.js';
+
 const router = express.Router();
-const dashboardController = require('../controllers/dashboardController');
-const { isAuthenticated } = require('../middlewares/authMiddleware');
-const folderTreeMiddleware = require('../middlewares/folderTreeMiddleware');
 
 router.get('/', isAuthenticated, (req, res) => {
   res.redirect('/dashboard');
@@ -10,4 +11,4 @@ router.get('/', isAuthenticated, (req, res) => {
 
 router.get('/dashboard', isAuthenticated, folderTreeMiddleware, dashboardController.getDashboard);
 
-module.exports = router;
+export default router;

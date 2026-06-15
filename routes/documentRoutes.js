@@ -1,9 +1,10 @@
-const express = require('express');
+import express from 'express';
+import * as documentController from '../controllers/documentController.js';
+import { isAuthenticated } from '../middlewares/authMiddleware.js';
+import upload from '../middlewares/uploadMiddleware.js';
+import folderTreeMiddleware from '../middlewares/folderTreeMiddleware.js';
+
 const router = express.Router();
-const documentController = require('../controllers/documentController');
-const { isAuthenticated } = require('../middlewares/authMiddleware');
-const upload = require('../middlewares/uploadMiddleware');
-const folderTreeMiddleware = require('../middlewares/folderTreeMiddleware');
 
 router.get('/upload', isAuthenticated, folderTreeMiddleware, documentController.getUploadPage);
 router.post('/upload', isAuthenticated, upload.single('file'), documentController.postUpload);
@@ -12,4 +13,4 @@ router.get('/document/:id/download', isAuthenticated, documentController.downloa
 router.delete('/document/:id', isAuthenticated, documentController.deleteDocument);
 router.get('/search', isAuthenticated, folderTreeMiddleware, documentController.search);
 
-module.exports = router;
+export default router;

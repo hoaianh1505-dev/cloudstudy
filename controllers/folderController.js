@@ -1,8 +1,8 @@
-const Folder = require('../models/Folder');
-const Document = require('../models/Document');
-const SharedLink = require('../models/SharedLink');
-const s3Service = require('../services/s3Service');
-const { getBreadcrumbs } = require('../utils/folderHelper');
+import Folder from '../models/Folder.js';
+import Document from '../models/Document.js';
+import SharedLink from '../models/SharedLink.js';
+import * as s3Service from '../services/s3Service.js';
+import { getBreadcrumbs } from '../utils/folderHelper.js';
 
 // Helper to format bytes
 const formatBytes = (bytes, decimals = 2) => {
@@ -35,7 +35,7 @@ const deleteFolderRecursive = async (folderId, userId) => {
   await Folder.deleteOne({ _id: folderId, owner: userId });
 };
 
-exports.getFolders = async (req, res) => {
+export const getFolders = async (req, res) => {
   try {
     const userId = req.session.userId;
     const subfolders = await Folder.find({ parentFolder: null, owner: userId }).sort({ name: 1 }).lean();
@@ -57,7 +57,7 @@ exports.getFolders = async (req, res) => {
   }
 };
 
-exports.getFolderDetail = async (req, res) => {
+export const getFolderDetail = async (req, res) => {
   try {
     const userId = req.session.userId;
     const folderId = req.params.id;
@@ -98,7 +98,7 @@ exports.getFolderDetail = async (req, res) => {
   }
 };
 
-exports.createFolder = async (req, res) => {
+export const createFolder = async (req, res) => {
   try {
     const userId = req.session.userId;
     const { name, parentFolder } = req.body;
@@ -141,7 +141,7 @@ exports.createFolder = async (req, res) => {
   }
 };
 
-exports.renameFolder = async (req, res) => {
+export const renameFolder = async (req, res) => {
   try {
     const userId = req.session.userId;
     const folderId = req.params.id;
@@ -178,7 +178,7 @@ exports.renameFolder = async (req, res) => {
   }
 };
 
-exports.deleteFolder = async (req, res) => {
+export const deleteFolder = async (req, res) => {
   try {
     const userId = req.session.userId;
     const folderId = req.params.id;

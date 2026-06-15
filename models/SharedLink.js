@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const SharedLinkSchema = new mongoose.Schema({
   documentId: {
@@ -17,4 +17,4 @@ const SharedLinkSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('SharedLink', SharedLinkSchema);
+export default mongoose.model('SharedLink', SharedLinkSchema);

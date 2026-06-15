@@ -69,9 +69,22 @@
           <div class="rounded-3 bg-success bg-opacity-10 p-3 me-3 text-success fs-3">
             <i class="bi bi-cloud-check-fill"></i>
           </div>
-          <div>
+          <div class="flex-grow-1 min-w-0">
             <h6 class="text-muted text-uppercase fw-semibold mb-0" style="font-size: 11px;">Dung lượng Cloud</h6>
             <h3 class="fw-bold mb-0 text-truncate" style="max-width: 140px;" title="<%= totalStorage %>"><%= totalStorage %></h3>
+            <% 
+              const freeTierLimit = 5 * 1024 * 1024 * 1024; // 5 GB
+              const usagePercent = Math.min(((totalStorageBytes / freeTierLimit) * 100), 100).toFixed(2);
+            %>
+            <div class="mt-2" style="width: 100%;">
+              <div class="progress" style="height: 5px; background-color: rgba(0,0,0,0.05); border-radius: 3px;">
+                <div class="progress-bar" role="progressbar" style="width: <%= usagePercent %>%; background: linear-gradient(to right, #6366f1, #a855f7); border-radius: 3px;" aria-valuenow="<%= usagePercent %>" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+              <div class="d-flex justify-content-between mt-1" style="font-size: 9px; color: #64748b;">
+                <span><%= usagePercent %>% đã dùng</span>
+                <span>Max 5 GB</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
