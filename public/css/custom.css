@@ -465,5 +465,15 @@ h1, h2, h3, h4, h5, h6, .brand-font {
   font-weight: 700;
 }
 
+/* Folder tree chevron toggle rotation */
+.folder-toggle-btn .folder-chevron-icon {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-block;
+}
+
+.folder-toggle-btn[aria-expanded="true"] .folder-chevron-icon {
+  transform: rotate(90deg);
+}
+
 
 
