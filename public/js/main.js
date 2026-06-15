@@ -418,4 +418,12 @@ async function sendAiMessage(e) {
   }
 }
 
+// Toggle mobile sidebar drawer view
+function toggleMobileSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar) {
+    sidebar.classList.toggle('show');
+  }
+}
+
 

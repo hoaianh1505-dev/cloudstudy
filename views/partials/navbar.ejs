@@ -1,5 +1,10 @@
 <nav class="navbar navbar-expand-lg navbar-light glass-panel border-0 border-bottom sticky-top py-3 px-4 mb-4">
-  <div class="container-fluid p-0">
+  <div class="container-fluid p-0 d-flex align-items-center">
+    <!-- Hamburger Toggle for Mobile Sidebar -->
+    <button class="btn btn-outline-secondary border-0 me-2 d-lg-none" type="button" onclick="toggleMobileSidebar()" aria-label="Toggle navigation">
+      <i class="bi bi-list fs-3"></i>
+    </button>
+
     <!-- Search Bar -->
     <form class="d-flex me-auto" action="/search" method="GET" style="width: 100%; max-width: 400px;">
       <div class="input-group">
