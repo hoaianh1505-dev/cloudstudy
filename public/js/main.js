@@ -299,13 +299,14 @@ function toggleTheme() {
 }
 
 function updateThemeIcon(theme) {
-  const icon = document.getElementById('themeToggleIcon');
-  if (!icon) return;
-  if (theme === 'dark') {
-    icon.className = 'bi bi-sun-fill';
-  } else {
-    icon.className = 'bi bi-moon-stars-fill';
-  }
+  const icons = document.querySelectorAll('.themeToggleIconClass');
+  icons.forEach(icon => {
+    if (theme === 'dark') {
+      icon.className = 'bi bi-sun-fill themeToggleIconClass';
+    } else {
+      icon.className = 'bi bi-moon-stars-fill themeToggleIconClass';
+    }
+  });
 }
 
 // --- AI ASSISTANT CHAT HANDLERS ---
