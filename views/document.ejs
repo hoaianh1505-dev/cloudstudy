@@ -1,0 +1,135 @@
+<%- include('partials/head') %>
+
+<div class="d-flex flex-column flex-lg-row">
+  <!-- Sidebar -->
+  <%- include('partials/sidebar') %>
+
+  <!-- Main Content Area -->
+  <main class="main-content flex-grow-1">
+    <!-- Top Navbar -->
+    <%- include('partials/navbar') %>
+
+    <!-- Breadcrumbs & Title -->
+    <div class="mb-4">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+          <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="/folders">Tài liệu (Root)</a></li>
+          <% if (typeof breadcrumbs !== 'undefined') { %>
+            <% breadcrumbs.forEach(crumb => { %>
+              <li class="breadcrumb-item"><a href="/folder/<%= crumb._id %>"><%= crumb.name %></a></li>
+            <% }) %>
+          <% } %>
+          <li class="breadcrumb-item active" aria-current="page"><%= doc.fileName %></li>
+        </ol>
+      </nav>
+      <h2 class="fw-bold mb-0 text-truncate" title="<%= doc.fileName %>"><%= doc.fileName %></h2>
+    </div>
+
+    <!-- Document Workspace -->
+    <div class="row g-4">
+      <!-- File Preview Column -->
+      <div class="col-12 col-md-5">
+        <div class="card premium-card p-4 text-center d-flex flex-column align-items-center justify-content-center" style="min-height: 320px;">
+          <% if (isImage) { %>
+            <div class="preview-img-container border rounded overflow-hidden shadow-sm mb-3" style="width: 100%; max-height: 240px;">
+              <img src="/document/<%= doc._id %>/download" class="img-fluid w-100" style="object-fit: contain; max-height: 240px;" alt="<%= doc.fileName %>">
+            </div>
+            <span class="badge bg-purple bg-opacity-10 text-purple mb-2 px-3 py-2"><i class="bi bi-image me-1"></i>Hình ảnh</span>
+          <% } else { %>
+            <% 
+              let iconClass = 'bi-file-earmark-text';
+              let badgeColor = 'bg-secondary';
+              let docExt = doc.fileName.split('.').pop().toLowerCase();
+              if (docExt === 'pdf') { iconClass = 'bi-file-earmark-pdf-fill text-danger'; badgeColor = 'bg-pdf'; }
+              else if (['doc', 'docx'].includes(docExt)) { iconClass = 'bi-file-earmark-word-fill text-primary'; badgeColor = 'bg-docx'; }
+              else if (['ppt', 'pptx'].includes(docExt)) { iconClass = 'bi-file-earmark-slides-fill text-warning'; badgeColor = 'bg-pptx'; }
+              else if (['xls', 'xlsx'].includes(docExt)) { iconClass = 'bi-file-earmark-excel-fill text-success'; badgeColor = 'bg-xlsx'; }
+              else if (docExt === 'zip') { iconClass = 'bi-file-earmark-zip-fill text-secondary'; badgeColor = 'bg-zip'; }
+            %>
+            <i class="bi <%= iconClass %> display-1 mb-4"></i>
+            <span class="file-badge <%= badgeColor %> mb-3 px-3 py-2 text-uppercase fs-6"><%= docExt %></span>
+          <% } %>
+          <div class="w-100 d-grid gap-2">
+            <a href="/document/<%= doc._id %>/download" class="btn btn-primary btn-lg py-2.5">
+              <i class="bi bi-cloud-arrow-down-fill me-2"></i> Tải file xuống
+            </a>
+            <button class="btn btn-outline-danger" onclick="deleteDocument('<%= doc._id %>', '<%= doc.folderId ? '/folder/' + doc.folderId._id : '/folders' %>')">
+              <i class="bi bi-trash-fill me-2"></i> Xóa tài liệu
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- File Metadata & Sharing Column -->
+      <div class="col-12 col-md-7">
+        <!-- Metadata -->
+        <div class="card premium-card p-4 mb-4">
+          <h5 class="fw-bold mb-3"><i class="bi bi-info-circle-fill me-2 text-primary"></i> Thông tin tài liệu</h5>
+          <table class="table table-borderless mb-0">
+            <tbody>
+              <tr>
+                <td class="text-muted fw-semibold ps-0" style="width: 140px;">Tên file:</td>
+                <td class="fw-medium text-wrap"><%= doc.fileName %></td>
+              </tr>
+              <tr>
+                <td class="text-muted fw-semibold ps-0">Định dạng file:</td>
+                <td><code class="text-secondary"><%= doc.fileType %></code></td>
+              </tr>
+              <tr>
+                <td class="text-muted fw-semibold ps-0">Dung lượng:</td>
+                <td><%= formatBytes(doc.fileSize) %></td>
+              </tr>
+              <tr>
+                <td class="text-muted fw-semibold ps-0">Thư mục chứa:</td>
+                <td>
+                  <% if (doc.folderId) { %>
+                    <a href="/folder/<%= doc.folderId._id %>" class="text-decoration-none fw-semibold">
+                      <i class="bi bi-folder2 me-1"></i><%= doc.folderId.name %>
+                    </a>
+                  <% } else { %>
+                    <span class="text-muted italic">Root (Thư mục gốc)</span>
+                  <% } %>
+                </td>
+              </tr>
+              <tr>
+                <td class="text-muted fw-semibold ps-0">Ngày tải lên:</td>
+                <td><%= new Date(doc.uploadedAt).toLocaleString('vi-VN') %></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Sharing Widget -->
+        <div class="card premium-card p-4">
+          <h5 class="fw-bold mb-2"><i class="bi bi-share-fill me-2 text-primary"></i> Chia sẻ tài liệu</h5>
+          <p class="text-muted small">Tạo một liên kết công khai cho phép bất cứ ai cũng có thể xem và tải xuống tài liệu này mà không cần đăng nhập hệ thống.</p>
+          
+          <!-- State check: share URL existing or not -->
+          <div class="mt-3">
+            <button id="generateShareBtn" class="btn btn-outline-primary py-2 px-4 <%= shareUrl ? 'd-none' : '' %>" onclick="generateShareLink('<%= doc._id %>')">
+              <i class="bi bi-link-45deg me-1"></i> Tạo liên kết chia sẻ
+            </button>
+            <button id="revokeShareBtn" class="btn btn-outline-danger py-2 px-4 <%= shareUrl ? '' : 'd-none' %>" onclick="revokeShareLink('<%= doc._id %>')">
+              <i class="bi bi-link-45deg me-1"></i> Hủy chia sẻ liên kết
+            </button>
+
+            <!-- Link copy area -->
+            <div id="shareLinkContainer" class="mt-3 bg-light p-3 rounded-3 border <%= shareUrl ? '' : 'd-none' %>">
+              <label for="shareInput" class="form-label small fw-bold text-muted">Đường dẫn chia sẻ</label>
+              <div class="input-group">
+                <input type="text" id="shareInput" class="form-control bg-white" readonly value="<%= shareUrl || '' %>">
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('shareInput')">
+                  <i class="bi bi-clipboard me-1"></i> Sao chép
+                </button>
+              </div>
+              <div class="form-text text-success fs-7 mt-1"><i class="bi bi-shield-check me-1"></i>Liên kết đang hoạt động công khai.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<%- include('partials/footer') %>

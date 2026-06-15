@@ -1,0 +1,75 @@
+<%- include('partials/head') %>
+
+<div class="d-flex flex-column flex-lg-row">
+  <!-- Sidebar -->
+  <%- include('partials/sidebar') %>
+
+  <!-- Main Content Area -->
+  <main class="main-content flex-grow-1">
+    <!-- Top Navbar -->
+    <%- include('partials/navbar') %>
+
+    <!-- Page Header -->
+    <div class="mb-4">
+      <h2 class="fw-bold mb-1">Tải lên tài liệu mới</h2>
+      <p class="text-muted">Lưu trữ tài liệu học tập của bạn an toàn trên đám mây.</p>
+    </div>
+
+    <% if (error) { %>
+      <div class="alert alert-danger border-0 rounded-3 shadow-sm mb-4" role="alert">
+        <i class="bi bi-x-circle-fill me-2"></i><%= error %>
+      </div>
+    <% } %>
+
+    <!-- Upload Workspace -->
+    <div class="row">
+      <div class="col-12 col-lg-8">
+        <div class="card premium-card p-4">
+          <form action="/upload" method="POST" enctype="multipart/form-data">
+            <!-- Drag and drop zone -->
+            <div class="mb-4 p-5 border rounded-4 text-center bg-light cursor-pointer" onclick="document.getElementById('fileInputPage').click()" style="border-style: dashed !important; border-width: 2px !important; border-color: var(--primary-color) !important;">
+              <i class="bi bi-cloud-arrow-up display-4 text-primary mb-3 d-block"></i>
+              <h5 class="fw-bold">Nhấp vào đây để chọn tập tin</h5>
+              <p class="text-muted small mb-0">Hỗ trợ PDF, DOCX, PPTX, XLSX, ZIP, JPG, PNG, WEBP lên đến 50MB</p>
+              <input type="file" id="fileInputPage" name="file" class="d-none" required onchange="updateSelectedFileName(this)">
+              <div id="selectedFileName" class="mt-3 text-success fw-semibold d-none"></div>
+            </div>
+
+            <!-- Target Folder Selection -->
+            <div class="mb-4">
+              <label for="folderSelectPage" class="form-label fw-bold text-muted">Chọn thư mục học tập</label>
+              <select class="form-select py-2.5" id="folderSelectPage" name="folderId">
+                <option value="">-- Thư mục gốc (Root) --</option>
+                <% folders.forEach(f => { %>
+                  <option value="<%= f._id %>" <%= currentFolderId && String(currentFolderId) === String(f._id) ? 'selected' : '' %>><%= f.name %></option>
+                <% }) %>
+              </select>
+              <div class="form-text">Phân cấp thư mục giúp bạn dễ dàng tìm kiếm và hệ thống kiến thức.</div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary py-2.5 px-4"><i class="bi bi-upload me-1"></i> Bắt đầu tải lên</button>
+              <a href="/folders" class="btn btn-light py-2.5 px-4">Hủy bỏ</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  function updateSelectedFileName(input) {
+    const fileDiv = document.getElementById('selectedFileName');
+    if (input.files && input.files[0]) {
+      fileDiv.innerHTML = '<i class="bi bi-file-earmark-check-fill me-1"></i> Đã chọn file: ' + input.files[0].name;
+      fileDiv.classList.remove('d-none');
+    } else {
+      fileDiv.innerHTML = '';
+      fileDiv.classList.add('d-none');
+    }
+  }
+</script>
+
+<%- include('partials/footer') %>

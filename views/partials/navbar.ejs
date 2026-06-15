@@ -1,0 +1,36 @@
+<nav class="navbar navbar-expand-lg navbar-light glass-panel border-0 border-bottom sticky-top py-3 px-4 mb-4" style="background: rgba(255,255,255,0.75);">
+  <div class="container-fluid p-0">
+    <!-- Search Bar -->
+    <form class="d-flex me-auto" action="/search" method="GET" style="width: 100%; max-width: 400px;">
+      <div class="input-group">
+        <span class="input-group-text bg-white border-end-0 rounded-start-pill text-muted">
+          <i class="bi bi-search"></i>
+        </span>
+        <input class="form-control border-start-0 rounded-end-pill bg-white" type="search" name="q" placeholder="Tìm tài liệu, thư mục..." value="<%= typeof query !== 'undefined' ? query : '' %>" aria-label="Search">
+      </div>
+    </form>
+
+    <!-- Right Controls -->
+    <div class="d-flex align-items-center ms-3">
+      <% if (user) { %>
+        <div class="dropdown">
+          <button class="btn btn-link nav-link dropdown-toggle d-flex align-items-center text-dark text-decoration-none" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="avatar-circle me-2 bg-primary text-white d-flex align-items-center justify-content-center rounded-circle fw-bold" style="width: 32px; height: 32px; font-size: 14px;">
+              <%= user.username.charAt(0).toUpperCase() %>
+            </div>
+            <span class="d-none d-md-inline font-weight-bold"><%= user.username %></span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-3 mt-2" aria-labelledby="userDropdown">
+            <li><a class="dropdown-item py-2" href="/dashboard"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+            <li><a class="dropdown-item py-2" href="/folders"><i class="bi bi-folder-fill me-2"></i>Thư mục của tôi</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item py-2 text-danger" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
+          </ul>
+        </div>
+      <% } else { %>
+        <a href="/login" class="btn btn-outline-primary me-2">Đăng nhập</a>
+        <a href="/register" class="btn btn-primary">Đăng ký</a>
+      <% } %>
+    </div>
+  </div>
+</nav>

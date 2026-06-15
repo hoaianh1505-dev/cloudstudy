@@ -1,0 +1,19 @@
+<%- include('partials/head') %>
+
+<div class="auth-container flex-column text-center">
+  <div class="card auth-card glass-panel p-5">
+    <div class="mb-4">
+      <i class="bi bi-exclamation-octagon display-1 text-danger"></i>
+    </div>
+    
+    <h3 class="fw-bold mb-2"><%= typeof title !== 'undefined' ? title : 'Có lỗi xảy ra' %></h3>
+    <p class="text-muted mb-4"><%= typeof message !== 'undefined' ? message : 'Không thể thực hiện hành động được yêu cầu.' %></p>
+    
+    <div class="d-grid gap-2">
+      <a href="/dashboard" class="btn btn-primary py-2.5">Quay về Dashboard</a>
+      <a href="javascript:history.back()" class="btn btn-outline-secondary py-2.5">Quay lại trang trước</a>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,122 @@
+<%- include('partials/head') %>
+
+<div class="d-flex flex-column flex-lg-row">
+  <!-- Sidebar -->
+  <%- include('partials/sidebar') %>
+
+  <!-- Main Content Area -->
+  <main class="main-content flex-grow-1">
+    <!-- Top Navbar -->
+    <%- include('partials/navbar') %>
+
+    <!-- Page Title & Search Term -->
+    <div class="mb-4">
+      <h2 class="fw-bold">Kết quả tìm kiếm</h2>
+      <p class="text-muted">Tìm thấy kết quả cho từ khóa: <strong class="text-primary">"<%= query %>"</strong></p>
+    </div>
+
+    <!-- Folders Result -->
+    <div class="mb-5">
+      <h5 class="fw-bold mb-3 d-flex align-items-center">
+        <i class="bi bi-folder-fill me-2 text-warning"></i> Thư mục học tập (<%= folders.length %>)
+      </h5>
+      <% if (folders && folders.length > 0) { %>
+        <div class="row g-3 row-cols-1 row-cols-md-3 row-cols-lg-4">
+          <% folders.forEach(folder => { %>
+            <div class="col">
+              <div class="card premium-card p-3 d-flex flex-row align-items-center justify-content-between cursor-pointer" onclick="window.location.href='/folder/<%= folder._id %>'">
+                <div class="d-flex align-items-center flex-grow-1 text-truncate">
+                  <i class="bi bi-folder-fill fs-3 text-warning me-2"></i>
+                  <span class="fw-semibold text-truncate" title="<%= folder.name %>"><%= folder.name %></span>
+                </div>
+                <i class="bi bi-chevron-right text-muted"></i>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="card premium-card p-3 border-dashed text-center">
+          <p class="text-muted mb-0 small">Không tìm thấy thư mục nào phù hợp.</p>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Documents Result -->
+    <div class="mb-4">
+      <h5 class="fw-bold mb-3 d-flex align-items-center">
+        <i class="bi bi-file-earmark-text-fill me-2 text-primary"></i> Tài liệu & Hình ảnh (<%= documents.length %>)
+      </h5>
+      <% if (documents && documents.length > 0) { %>
+        <div class="card premium-card p-4">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light border-0">
+                <tr>
+                  <th scope="col" class="border-0 rounded-start">Tên tài liệu</th>
+                  <th scope="col" class="border-0">Thư mục chứa</th>
+                  <th scope="col" class="border-0">Kích thước</th>
+                  <th scope="col" class="border-0">Ngày tải</th>
+                  <th scope="col" class="border-0 text-end rounded-end">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% documents.forEach(doc => { %>
+                  <% 
+                    let badgeClass = 'bg-secondary';
+                    let docExt = doc.fileName.split('.').pop().toLowerCase();
+                    if (docExt === 'pdf') badgeClass = 'bg-pdf';
+                    else if (['doc', 'docx'].includes(docExt)) badgeClass = 'bg-docx';
+                    else if (['ppt', 'pptx'].includes(docExt)) badgeClass = 'bg-pptx';
+                    else if (['xls', 'xlsx'].includes(docExt)) badgeClass = 'bg-xlsx';
+                    else if (docExt === 'zip') badgeClass = 'bg-zip';
+                    else if (['jpg', 'jpeg', 'png', 'webp'].includes(docExt)) badgeClass = 'bg-image';
+                  %>
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <span class="file-badge <%= badgeClass %> me-2 text-uppercase"><%= docExt %></span>
+                        <a href="/document/<%= doc._id %>" class="text-decoration-none text-dark fw-semibold text-truncate" style="max-width: 250px;" title="<%= doc.fileName %>">
+                          <%= doc.fileName %>
+                        </a>
+                      </div>
+                    </td>
+                    <td>
+                      <% if (doc.folderId) { %>
+                        <a href="/folder/<%= doc.folderId._id %>" class="text-decoration-none">
+                          <span class="badge bg-light text-dark border"><i class="bi bi-folder2 me-1"></i><%= doc.folderId.name %></span>
+                        </a>
+                      <% } else { %>
+                        <span class="text-muted italic" style="font-size: 13px;">Root</span>
+                      <% } %>
+                    </td>
+                    <td><%= formatBytes(doc.fileSize) %></td>
+                    <td><%= new Date(doc.uploadedAt).toLocaleDateString('vi-VN') %></td>
+                    <td class="text-end">
+                      <div class="btn-group">
+                        <a href="/document/<%= doc._id %>" class="btn btn-sm btn-outline-secondary" title="Chi tiết"><i class="bi bi-info-circle"></i></a>
+                        <a href="/document/<%= doc._id %>/download" class="btn btn-sm btn-outline-primary" title="Tải xuống"><i class="bi bi-download"></i></a>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteDocument('<%= doc._id %>', '/search?q=<%= query %>')" title="Xóa"><i class="bi bi-trash"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="text-center py-5 glass-panel rounded-4">
+          <img src="https://illustrations.popsy.co/violet/document.svg" alt="No Documents" style="max-height: 120px;" class="mb-3">
+          <p class="text-muted mb-0">Không tìm thấy tài liệu học tập nào phù hợp.</p>
+        </div>
+      <% } %>
+    </div>
+  </main>
+</div>
+
+<!-- Floating Action Button for Upload -->
+<button class="fab-upload" data-bs-toggle="modal" data-bs-target="#uploadFileModal" title="Tải tài liệu mới">
+  <i class="bi bi-plus-lg"></i>
+</button>
+
+<%- include('partials/footer') %>

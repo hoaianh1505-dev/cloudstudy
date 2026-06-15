@@ -1,0 +1,128 @@
+<aside class="sidebar">
+  <!-- Brand logo -->
+  <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+    <a href="/dashboard" class="d-flex align-items-center text-decoration-none text-dark">
+      <div class="bg-primary text-white rounded-3 p-2 d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+        <i class="bi bi-cloud-arrow-up-fill fs-4"></i>
+      </div>
+      <div>
+        <span class="brand-font fw-bold fs-5 text-primary">CloudStudy</span>
+        <div class="text-muted" style="font-size: 10px; font-weight: 500; letter-spacing: 0.5px;">DOCUMENT MANAGER</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Main Navigation Links -->
+  <div class="mb-4">
+    <div class="text-uppercase text-muted fw-bold mb-2" style="font-size: 11px; letter-spacing: 0.8px;">Menu</div>
+    <ul class="nav flex-column gap-1">
+      <li class="nav-item">
+        <a class="nav-link nav-link-custom py-2 px-3 d-flex align-items-center <%= (typeof title !== 'undefined' && title.includes('Dashboard')) ? 'active' : '' %>" href="/dashboard">
+          <i class="bi bi-speedometer2 me-2 fs-5"></i>
+          Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link nav-link-custom py-2 px-3 d-flex align-items-center <%= (typeof title !== 'undefined' && title.includes('Tất cả tài liệu') && !title.includes('Chi tiết')) ? 'active' : '' %>" href="/folders">
+          <i class="bi bi-folder-fill me-2 fs-5"></i>
+          Tất cả tài liệu
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Folder Directory Tree -->
+  <div class="mb-4 flex-grow-1 overflow-auto" style="max-height: 320px;">
+    <div class="text-uppercase text-muted fw-bold mb-2" style="font-size: 11px; letter-spacing: 0.8px;">Thư mục học tập</div>
+    <div class="folder-tree-container">
+      <% if (folderTreeHtml && folderTreeHtml.trim() !== '') { %>
+        <%- folderTreeHtml %>
+      <% } else { %>
+        <p class="text-muted fs-7 px-3 py-2 italic mb-0">Chưa có thư mục nào.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="d-grid gap-2 pt-3 border-top mt-auto">
+    <button class="btn btn-primary d-flex align-items-center justify-content-center py-2" data-bs-toggle="modal" data-bs-target="#uploadFileModal">
+      <i class="bi bi-cloud-upload me-2"></i>
+      Tải file lên
+    </button>
+    <button class="btn btn-outline-secondary d-flex align-items-center justify-content-center py-2" data-bs-toggle="modal" data-bs-target="#createFolderModal">
+      <i class="bi bi-folder-plus me-2"></i>
+      Tạo thư mục
+    </button>
+  </div>
+</aside>
+
+<!-- Modal Create Folder -->
+<div class="modal fade" id="createFolderModal" tabindex="-1" aria-labelledby="createFolderModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="createFolderModalLabel">Tạo thư mục mới</h5>
+        <button type="button" class="btn-close" data-bs-close="modal" aria-label="Close"></button>
+      </div>
+      <form action="/folder/create" method="POST">
+        <div class="modal-body py-3">
+          <div class="mb-3">
+            <label for="folderNameInput" class="form-label fw-semibold">Tên thư mục</label>
+            <input type="text" class="form-control" id="folderNameInput" name="name" placeholder="Ví dụ: Toán cao cấp, Lập trình C, OOP" required>
+          </div>
+          <div class="mb-3">
+            <label for="parentFolderSelect" class="form-label fw-semibold">Nằm trong thư mục (Cấp cha)</label>
+            <select class="form-select" id="parentFolderSelect" name="parentFolder">
+              <option value="">-- Thư mục gốc (Root) --</option>
+              <% if (typeof rawFolders !== 'undefined') { %>
+                <% rawFolders.forEach(f => { %>
+                  <option value="<%= f._id %>" <%= (typeof currentFolder !== 'undefined' && currentFolder && String(currentFolder._id) === String(f._id)) ? 'selected' : '' %>><%= f.name %></option>
+                <% }) %>
+              <% } %>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Xác nhận tạo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Upload File -->
+<div class="modal fade" id="uploadFileModal" tabindex="-1" aria-labelledby="uploadFileModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="uploadFileModalLabel">Tải tài liệu lên đám mây</h5>
+        <button type="button" class="btn-close" data-bs-close="modal" aria-label="Close"></button>
+      </div>
+      <form action="/upload" method="POST" enctype="multipart/form-data">
+        <div class="modal-body py-3">
+          <div class="mb-3">
+            <label for="fileUploadInput" class="form-label fw-semibold">Chọn File tài liệu hoặc hình ảnh</label>
+            <input class="form-control" type="file" id="fileUploadInput" name="file" required>
+            <div class="form-text fs-7">Hỗ trợ PDF, DOCX, PPTX, XLSX, ZIP, JPG, PNG, WEBP tối đa 50MB.</div>
+          </div>
+          <div class="mb-3">
+            <label for="destFolderSelect" class="form-label fw-semibold">Chọn thư mục lưu trữ</label>
+            <select class="form-select" id="destFolderSelect" name="folderId">
+              <option value="">-- Thư mục gốc (Root) --</option>
+              <% if (typeof rawFolders !== 'undefined') { %>
+                <% rawFolders.forEach(f => { %>
+                  <option value="<%= f._id %>" <%= (typeof currentFolder !== 'undefined' && currentFolder && String(currentFolder._id) === String(f._id)) ? 'selected' : '' %>><%= f.name %></option>
+                <% }) %>
+              <% } %>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Bắt đầu tải lên</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
