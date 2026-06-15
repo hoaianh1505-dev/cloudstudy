@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light glass-panel border-0 border-bottom sticky-top py-3 px-4 mb-4" style="background: rgba(255,255,255,0.75);">
+<nav class="navbar navbar-expand-lg navbar-light glass-panel border-0 border-bottom sticky-top py-3 px-4 mb-4">
   <div class="container-fluid p-0">
     <!-- Search Bar -->
     <form class="d-flex me-auto" action="/search" method="GET" style="width: 100%; max-width: 400px;">
@@ -12,6 +12,11 @@
 
     <!-- Right Controls -->
     <div class="d-flex align-items-center ms-3">
+      <!-- Theme Toggle Button -->
+      <button id="themeToggleBtn" class="btn btn-outline-secondary rounded-circle border-0 me-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;" onclick="toggleTheme()" title="Đổi giao diện Sáng/Tối">
+        <i class="bi bi-moon-stars-fill" id="themeToggleIcon"></i>
+      </button>
+
       <% if (user) { %>
         <div class="dropdown">
           <button class="btn btn-link nav-link dropdown-toggle d-flex align-items-center text-dark text-decoration-none" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">

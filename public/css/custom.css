@@ -10,17 +10,37 @@
   --glass-bg: rgba(255, 255, 255, 0.45);
   --glass-border: rgba(255, 255, 255, 0.4);
   --sidebar-width: 280px;
+
+  --body-bg: #f8fafc;
+  --text-color: #1e293b;
+  --text-muted: #64748b;
+  --sidebar-bg: rgba(255, 255, 255, 0.8);
+  --border-color: rgba(226, 232, 240, 0.8);
+  --table-header-bg: #f1f5f9;
+}
+
+[data-theme="dark"] {
+  --body-bg: #090d16;
+  --text-color: #f1f5f9;
+  --text-muted: #94a3b8;
+  --card-bg: rgba(17, 24, 39, 0.85);
+  --glass-bg: rgba(17, 24, 39, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --sidebar-bg: rgba(17, 24, 39, 0.8);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --table-header-bg: #1f2937;
 }
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #f8fafc;
+  background-color: var(--body-bg);
   background-image: 
     radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
     radial-gradient(at 50% 0%, rgba(168, 85, 247, 0.05) 0px, transparent 50%),
     radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.05) 0px, transparent 50%);
-  color: #1e293b;
+  color: var(--text-color);
   min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1, h2, h3, h4, h5, h6, .brand-font {
@@ -38,7 +58,7 @@ h1, h2, h3, h4, h5, h6, .brand-font {
 
 .premium-card {
   background: var(--card-bg);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -59,10 +79,11 @@ h1, h2, h3, h4, h5, h6, .brand-font {
   left: 0;
   z-index: 100;
   padding: 24px;
-  border-right: 1px solid rgba(226, 232, 240, 0.8);
-  background: rgba(255, 255, 255, 0.8);
+  border-right: 1px solid var(--border-color);
+  background: var(--sidebar-bg);
   backdrop-filter: blur(20px);
   overflow-y: auto;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .main-content {
@@ -304,4 +325,123 @@ h1, h2, h3, h4, h5, h6, .brand-font {
 .nav-link-custom:hover::after, .nav-link-custom.active::after {
   width: 100%;
 }
+
+/* --- DARK MODE SELECTORS OVERRIDE --- */
+
+[data-theme="dark"] .table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--text-color);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .table-light {
+  --bs-table-bg: var(--table-header-bg) !important;
+  --bs-table-color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+  background-color: #111827;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+  background-color: #111827;
+  color: #fff;
+  border-color: var(--primary-color);
+}
+
+[data-theme="dark"] .modal-content {
+  background-color: #0b0f19;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .modal-header .btn-close {
+  filter: invert(1) grayscale(1) brightness(2);
+}
+
+[data-theme="dark"] .dropdown-menu {
+  background-color: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .dropdown-item {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .text-dark {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .bg-white {
+  background-color: #111827 !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .bg-light {
+  background-color: #111827 !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .input-group-text {
+  background-color: #111827 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .hover-bg-light:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-theme="dark"] .btn-link {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .badge.bg-light {
+  background-color: #1f2937 !important;
+  color: #f1f5f9 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Custom Modal Spacing & Polish */
+.modal-content {
+  border-radius: 20px !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-theme="dark"] .modal-content {
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.modal-header {
+  padding: 24px 24px 8px 24px !important;
+}
+
+.modal-body {
+  padding: 8px 24px 24px 24px !important;
+}
+
+.modal-footer {
+  padding: 0 24px 24px 24px !important;
+}
+
+.modal-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem !important;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+
+
 

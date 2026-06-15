@@ -183,4 +183,30 @@ document.addEventListener('DOMContentLoaded', () => {
       // Simply regular form action is fine, no complex interceptor needed unless it's SPA.
     });
   }
+
+  // Initial theme icon update on load
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+  updateThemeIcon(currentTheme);
 });
+
+// Toggle Light/Dark Theme
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+  const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  
+  document.documentElement.setAttribute('data-theme', targetTheme);
+  localStorage.setItem('theme', targetTheme);
+  
+  updateThemeIcon(targetTheme);
+}
+
+function updateThemeIcon(theme) {
+  const icon = document.getElementById('themeToggleIcon');
+  if (!icon) return;
+  if (theme === 'dark') {
+    icon.className = 'bi bi-sun-fill';
+  } else {
+    icon.className = 'bi bi-moon-stars-fill';
+  }
+}
+

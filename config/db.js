@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import dns from 'dns';
+import 'dotenv/config';
 
 // Force Node.js to use Google DNS to bypass local ISP DNS blocking for MongoDB SRV records
 try {
