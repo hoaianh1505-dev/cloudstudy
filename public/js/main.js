@@ -481,6 +481,18 @@ async function sendAiMessage(e) {
   chatBody.appendChild(typingBubble);
   chatBody.scrollTop = chatBody.scrollHeight;
 
+  const aiReadDocCheckbox = document.getElementById('aiReadDocCheckbox');
+  const aiDocIdInput = document.getElementById('aiDocId');
+  const aiShareTokenInput = document.getElementById('aiShareToken');
+
+  let docId = null;
+  let shareToken = null;
+
+  if (aiReadDocCheckbox && aiReadDocCheckbox.checked) {
+    if (aiDocIdInput) docId = aiDocIdInput.value;
+    if (aiShareTokenInput) shareToken = aiShareTokenInput.value;
+  }
+
   try {
     const response = await fetch('/ai/chat', {
       method: 'POST',
@@ -490,7 +502,9 @@ async function sendAiMessage(e) {
       },
       body: JSON.stringify({
         message: msgText,
-        history: aiChatHistory
+        history: aiChatHistory,
+        documentId: docId,
+        shareToken: shareToken
       })
     });
 

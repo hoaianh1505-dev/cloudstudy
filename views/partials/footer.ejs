@@ -27,6 +27,18 @@
       </div>
       <!-- Chat Footer Input -->
       <div class="card-footer border-0 p-3 bg-transparent">
+        <% if (typeof doc !== 'undefined' && doc) { %>
+          <div class="form-check form-switch mb-2 px-3 text-start" style="font-size: 12px;">
+            <input class="form-check-input" type="checkbox" id="aiReadDocCheckbox" checked>
+            <label class="form-check-label text-muted fw-semibold" for="aiReadDocCheckbox">
+              🤖 Đọc nội dung tệp: <span class="text-primary text-truncate d-inline-block align-middle" style="max-width: 150px;" title="<%= doc.fileName %>"><%= doc.fileName %></span>
+            </label>
+            <input type="hidden" id="aiDocId" value="<%= doc._id %>">
+            <% if (typeof token !== 'undefined' && token) { %>
+              <input type="hidden" id="aiShareToken" value="<%= token %>">
+            <% } %>
+          </div>
+        <% } %>
         <form id="aiChatForm" onsubmit="sendAiMessage(event)">
           <div class="input-group">
             <input type="text" id="aiChatInput" class="form-control rounded-start-pill py-2 ps-3" placeholder="Nhập câu hỏi cho AI..." required>
