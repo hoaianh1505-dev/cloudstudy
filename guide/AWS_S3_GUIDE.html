@@ -796,30 +796,76 @@
         <div class="step-card">
           <div class="step-header">
             <div class="step-number">5</div>
-            <h2 class="step-title">Điền thông tin kết nối vào file cấu hình .env</h2>
+            <h2 class="step-title">Lưu trữ các Khóa & Thiết lập cấu hình ứng dụng</h2>
           </div>
           
           <div class="step-body">
-            <p>Mở dự án trên máy tính, tìm đến file <code>.env</code> ở thư mục gốc và điền đầy đủ các thông tin vừa tạo:</p>
-            
-            <div class="env-grid" style="margin: 1.5rem 0;">
+            <p>Sau khi hoàn thành 4 bước trên AWS, bạn sẽ có <strong>4 thông số bảo mật quan trọng</strong>. Bạn cần lưu trữ các thông số này vào các vị trí dưới đây để ứng dụng hoạt động:</p>
+
+            <!-- Table of credentials -->
+            <table style="width:100%; border-collapse:collapse; margin: 1.5rem 0; font-size:0.9rem; border: 1px solid var(--border-color);">
+              <thead>
+                <tr style="background-color: var(--bg-tertiary); text-align: left;">
+                  <th style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); color: var(--accent-color);">Tên biến (.env)</th>
+                  <th style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Nguồn lấy thông số</th>
+                  <th style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Mẫu giá trị thực tế</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-family: 'Fira Code', monospace; color: #f472b6;">AWS_REGION</td>
+                  <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Vùng đã chọn ở <strong>Bước 1</strong> khi tạo Bucket.</td>
+                  <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-family: 'Fira Code', monospace; color: #34d399;">ap-southeast-1</td>
+                </tr>
+                <tr style="background-color: rgba(255,255,255,0.02);">
+                  <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-family: 'Fira Code', monospace; color: #f472b6;">AWS_BUCKET_NAME</td>
+                  <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Tên duy nhất của S3 Bucket bạn đã tạo ở <strong>Bước 1</strong>.</td>
+                  <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-family: 'Fira Code', monospace; color: #34d399;">cloudstudy-2026</td>
+                </tr>
+                <tr>
+                  <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-family: 'Fira Code', monospace; color: #f472b6;">AWS_ACCESS_KEY_ID</td>
+                  <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Mã ID khóa truy cập tải từ file <code>.csv</code> ở <strong>Bước 3</strong>.</td>
+                  <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-family: 'Fira Code', monospace; color: #34d399;">AKIAIOSFODNN7EXAMPLE</td>
+                </tr>
+                <tr style="background-color: rgba(255,255,255,0.02);">
+                  <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-family: 'Fira Code', monospace; color: #f472b6;">AWS_SECRET_ACCESS_KEY</td>
+                  <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Mã khóa bí mật sao chép hoặc tải từ file <code>.csv</code> ở <strong>Bước 3</strong>.</td>
+                  <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-family: 'Fira Code', monospace; color: #34d399;">wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.1rem; color: var(--accent-color);">1. Cấu hình chạy cục bộ (Local PC)</h3>
+            <p>Tìm tệp tin <code>.env</code> tại thư mục gốc dự án (nếu chưa có, copy từ file <code>.env.example</code> và đổi tên thành <code>.env</code>). Cập nhật 4 dòng cấu hình S3 tương ứng:</p>
+
+            <div class="env-grid" style="margin: 1rem 0;">
               <span class="env-key">AWS_REGION</span>
-              <span class="env-val">= ap-southeast-1 <span style="color: #64748b; font-size: 0.8rem;"># Nhập Region đã chọn ở Bước 1</span></span>
+              <span class="env-val">= ap-southeast-1</span>
               
               <span class="env-key">AWS_ACCESS_KEY_ID</span>
-              <span class="env-val">= AKIAYOURACCESSKEYID <span style="color: #64748b; font-size: 0.8rem;"># Nhập Access Key ID ở Bước 3</span></span>
+              <span class="env-val">= AKIAIOSFODNN7EXAMPLE</span>
               
               <span class="env-key">AWS_SECRET_ACCESS_KEY</span>
-              <span class="env-val">= yourSecretAccessKeyStringHere... <span style="color: #64748b; font-size: 0.8rem;"># Nhập Secret Access Key ở Bước 3</span></span>
+              <span class="env-val">= wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</span>
               
               <span class="env-key">AWS_BUCKET_NAME</span>
-              <span class="env-val">= cloudstudy-2026 <span style="color: #64748b; font-size: 0.8rem;"># Nhập tên S3 Bucket đã tạo ở Bước 1</span></span>
+              <span class="env-val">= cloudstudy-2026</span>
             </div>
 
+            <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.1rem; color: var(--accent-color);">2. Cấu hình chạy trên Cloud (Render / Production)</h3>
+            <p>Khi triển khai lên Render, bạn <strong>không tải file .env lên Git</strong>. Thay vào đó, hãy làm như sau:</p>
+            <ul class="instruction-list" style="margin-top: 0.5rem;">
+              <li>Truy cập trang quản trị dự án trên dashboard của Render.</li>
+              <li>Chọn dịch vụ Web Service <code>cloud-study</code> của bạn.</li>
+              <li>Nhấp vào mục <strong>Environment</strong> ở menu bên trái.</li>
+              <li>Nhấn <strong>Add Environment Variable</strong> và thêm lần lượt 4 cặp khóa - giá trị như bảng ở trên.</li>
+              <li>Nhấn <strong>Save changes</strong> để Render tiến hành deploy lại với cấu hình mới.</li>
+            </ul>
+
             <div class="alert-box warning">
-              <div class="alert-title">TUYỆT ĐỐI KHÔNG PUSH FILE .ENV LÊN GIT:</div>
+              <div class="alert-title">🚨 CẢNH BÁO BẢO MẬT:</div>
               <div class="alert-content">
-                Hệ thống đã cấu hình <code>.gitignore</code> sẵn để loại trừ file `.env` khi đẩy lên Git. Hãy giữ file này bí mật cục bộ.
+                Tuyệt đối không đẩy tệp <code>.env</code> lên GitHub để tránh bị lộ mã AWS S3 Access Key. AWS có bot quét tự động, nếu lộ key bạn có thể bị khóa tài khoản hoặc phát sinh chi phí phát ngoài ý muốn.
               </div>
             </div>
           </div>

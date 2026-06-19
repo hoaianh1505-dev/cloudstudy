@@ -8,12 +8,12 @@
 
 Dự án cung cấp bộ tài liệu kỹ thuật chi tiết dưới dạng **HTML động tương tác** (hỗ trợ chế độ Sáng/Tối, Sidebar điều phối, nút sao chép code). Bạn có thể mở trực tiếp các file này bằng bất kỳ trình duyệt web nào (Chrome, Edge, Firefox, Safari) để xem:
 
-1. **[PROJECT_GUIDE.html](PROJECT_GUIDE.html)**: Tổng quan kiến trúc hệ thống, bao gồm sơ đồ luồng dữ liệu chi tiết giữa Client, Server, AWS S3, MongoDB và Google Gemini API (vẽ bằng Mermaid.js).
-2. **[AWS_S3_GUIDE.html](AWS_S3_GUIDE.html)**: Hướng dẫn chi tiết cách khởi tạo S3 Bucket, thiết lập CORS Rules và IAM Policy/User để cấp quyền bảo mật cho ứng dụng.
-3. **[DATABASE_GUIDE.html](DATABASE_GUIDE.html)**: Tài liệu chi tiết về lược đồ dữ liệu (MongoDB Models) và các mối quan hệ ràng buộc Mongoose ODM.
-4. **[DEPLOYMENT_GUIDE.html](DEPLOYMENT_GUIDE.html)**: Hướng dẫn chi tiết các bước cấu hình biến môi trường và deploy dự án lên nền tảng đám mây Render, kèm mẹo chống ngủ đông cho gói Free (sử dụng UptimeRobot).
-5. **[API_DOCUMENTATION.html](API_DOCUMENTATION.html)**: Tài liệu chi tiết các Router & API endpoints (Đăng ký/Đăng nhập, CRUD thư mục, tải lên/xóa tài liệu, và hỏi đáp AI).
-6. **[CODE_STRUCTURE_GUIDE.html](CODE_STRUCTURE_GUIDE.html)**: Giải thích cấu trúc cây thư mục dự án và nguyên lý của mô hình kiến trúc phân lớp sạch **Service-Controller** (tách biệt logic nghiệp vụ khỏi controller).
+1. **[PROJECT_GUIDE.html](guide/PROJECT_GUIDE.html)**: Tổng quan kiến trúc hệ thống, bao gồm sơ đồ luồng dữ liệu chi tiết giữa Client, Server, AWS S3, MongoDB và Google Gemini API (vẽ bằng Mermaid.js).
+2. **[AWS_S3_GUIDE.html](guide/AWS_S3_GUIDE.html)**: Hướng dẫn chi tiết cách khởi tạo S3 Bucket, thiết lập CORS Rules và IAM Policy/User để cấp quyền bảo mật cho ứng dụng.
+3. **[DATABASE_GUIDE.html](guide/DATABASE_GUIDE.html)**: Tài liệu chi tiết về lược đồ dữ liệu (MongoDB Models) và các mối quan hệ ràng buộc Mongoose ODM.
+4. **[DEPLOYMENT_GUIDE.html](guide/DEPLOYMENT_GUIDE.html)**: Hướng dẫn chi tiết các bước cấu hình biến môi trường và deploy dự án lên nền tảng đám mây Render, kèm mẹo chống ngủ đông cho gói Free (sử dụng UptimeRobot).
+5. **[API_DOCUMENTATION.html](guide/API_DOCUMENTATION.html)**: Tài liệu chi tiết các Router & API endpoints (Đăng ký/Đăng nhập, CRUD thư mục, tải lên/xóa tài liệu, và hỏi đáp AI).
+6. **[CODE_STRUCTURE_GUIDE.html](guide/CODE_STRUCTURE_GUIDE.html)**: Giải thích cấu trúc cây thư mục dự án và nguyên lý của mô hình kiến trúc phân lớp sạch **Service-Controller** (tách biệt logic nghiệp vụ khỏi controller).
 
 > **💡 Cách xem tài liệu:** Nhấp đúp chuột vào file HTML tương ứng trong thư mục dự án trên máy tính của bạn để mở trực tiếp trong trình duyệt web mà không cần cài đặt thêm gì.
 
