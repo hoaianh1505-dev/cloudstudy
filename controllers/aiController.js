@@ -2,7 +2,7 @@ import * as aiService from '../services/aiService.js';
 
 export const handleChat = async (req, res) => {
   try {
-    const { message, history, documentId, shareToken } = req.body;
+    const { message, history, documentId } = req.body;
     const userId = req.session.userId;
     const apiKey = process.env.GEMINI_API_KEY;
 
@@ -10,7 +10,6 @@ export const handleChat = async (req, res) => {
       message, 
       history, 
       documentId, 
-      shareToken, 
       userId, 
       apiKey
     );

@@ -34,9 +34,6 @@
               🤖 Đọc nội dung tệp: <span class="text-primary text-truncate d-inline-block align-middle" style="max-width: 150px;" title="<%= doc.fileName %>"><%= doc.fileName %></span>
             </label>
             <input type="hidden" id="aiDocId" value="<%= doc._id %>">
-            <% if (typeof token !== 'undefined' && token) { %>
-              <input type="hidden" id="aiShareToken" value="<%= token %>">
-            <% } %>
           </div>
         <% } %>
         <form id="aiChatForm" onsubmit="sendAiMessage(event)">

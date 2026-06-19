@@ -49,7 +49,6 @@ import indexRoutes from './routes/indexRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import folderRoutes from './routes/folderRoutes.js';
 import documentRoutes from './routes/documentRoutes.js';
-import shareRoutes from './routes/shareRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
 
 // Use Routes
@@ -57,7 +56,6 @@ app.use('/', indexRoutes);
 app.use('/', authRoutes);
 app.use('/', folderRoutes);
 app.use('/', documentRoutes);
-app.use('/', shareRoutes);
 app.use('/', aiRoutes);
 
 // Error and 404 Pages

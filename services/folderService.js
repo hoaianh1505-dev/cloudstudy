@@ -1,6 +1,5 @@
 import Folder from '../models/Folder.js';
 import Document from '../models/Document.js';
-import SharedLink from '../models/SharedLink.js';
 import * as s3Service from './s3Service.js';
 import { getBreadcrumbs } from '../utils/folderHelper.js';
 
@@ -99,7 +98,6 @@ export const deleteFolderRecursive = async (folderId, userId) => {
       console.error(`S3 Delete error for key ${doc.s3Key}:`, err);
     }
     await Document.deleteOne({ _id: doc._id });
-    await SharedLink.deleteMany({ documentId: doc._id });
   }
 
   await Folder.deleteOne({ _id: folderId, owner: userId });

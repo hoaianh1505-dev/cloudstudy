@@ -1,9 +1,8 @@
 import Document from '../models/Document.js';
 import Folder from '../models/Folder.js';
-import SharedLink from '../models/SharedLink.js';
 import * as s3Service from './s3Service.js';
 
-export const processChat = async (message, history, documentId, shareToken, userId, apiKey) => {
+export const processChat = async (message, history, documentId, userId, apiKey) => {
   if (!apiKey || apiKey === 'YOUR_GEMINI_API_KEY' || apiKey.trim() === '') {
     throw new Error('Trợ lý AI chưa được cấu hình khóa API (GEMINI_API_KEY) trong file .env. Vui lòng liên hệ quản trị viên!');
   }
@@ -36,13 +35,6 @@ Hãy trả lời một cách CỰC KỲ ngắn gọn, súc tích, đi thẳng v�
     // Find document and ensure user owns it
     doc = await Document.findOne({ _id: documentId, owner: userId }).lean();
     console.log(`[AI Chat Service] DB Query for documentId="${documentId}" returned:`, doc ? `Found ("${doc.fileName}")` : "Not Found");
-  } else if (shareToken) {
-    // Find document using share token
-    const sharedLink = await SharedLink.findOne({ token: shareToken }).populate('documentId').lean();
-    if (sharedLink && sharedLink.documentId) {
-      doc = sharedLink.documentId;
-    }
-    console.log(`[AI Chat Service] DB Query for shareToken="${shareToken}" returned:`, doc ? `Found ("${doc.fileName}")` : "Not Found");
   }
 
   if (doc) {

@@ -1,6 +1,5 @@
 import Document from '../models/Document.js';
 import Folder from '../models/Folder.js';
-import SharedLink from '../models/SharedLink.js';
 import * as s3Service from './s3Service.js';
 import { getBreadcrumbs } from '../utils/folderHelper.js';
 
@@ -28,7 +27,7 @@ export const uploadDocument = async (file, folderId, userId) => {
   return { doc, destFolderId };
 };
 
-export const getDocumentDetails = async (docId, userId, protocol, host) => {
+export const getDocumentDetails = async (docId, userId) => {
   const doc = await Document.findOne({ _id: docId, owner: userId }).populate('folderId').lean();
   if (!doc) {
     throw new Error('Tài liệu không tồn tại');
@@ -37,20 +36,12 @@ export const getDocumentDetails = async (docId, userId, protocol, host) => {
   const allFolders = await Folder.find({ owner: userId }).lean();
   const breadcrumbs = doc.folderId ? getBreadcrumbs(doc.folderId._id, allFolders) : [];
 
-  // Check if there is an active shared link
-  const sharedLink = await SharedLink.findOne({ documentId: docId }).lean();
-  let shareUrl = null;
-  if (sharedLink) {
-    shareUrl = `${protocol}://${host}/share/${sharedLink.token}`;
-  }
-
   // Identify if the document is an image (for thumbnail rendering)
   const isImage = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(doc.fileType);
 
   return {
     doc,
     breadcrumbs,
-    shareUrl,
     isImage
   };
 };
@@ -73,9 +64,6 @@ export const deleteDocument = async (docId, userId) => {
 
   // Delete S3 source file
   await s3Service.deleteFile(doc.s3Key);
-
-  // Delete sharing tokens
-  await SharedLink.deleteMany({ documentId: docId });
 
   // Delete metadata
   await Document.deleteOne({ _id: docId });

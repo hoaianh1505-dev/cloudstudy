@@ -43,18 +43,12 @@ export const getDocumentDetail = async (req, res) => {
     const userId = req.session.userId;
     const docId = req.params.id;
 
-    const details = await documentService.getDocumentDetails(
-      docId, 
-      userId, 
-      req.protocol, 
-      req.get('host')
-    );
+    const details = await documentService.getDocumentDetails(docId, userId);
 
     res.render('document', {
       title: `${details.doc.fileName} - Chi tiết`,
       doc: details.doc,
       breadcrumbs: details.breadcrumbs,
-      shareUrl: details.shareUrl,
       isImage: details.isImage,
       formatBytes
     });

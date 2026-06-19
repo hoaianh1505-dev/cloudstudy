@@ -22,38 +22,6 @@ function copyToClipboard(inputId) {
   });
 }
 
-// Generate share link
-async function generateShareLink(documentId) {
-  try {
-    const response = await fetch('/share/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({ documentId })
-    });
-    
-    const data = await response.json();
-    if (response.ok && data.success) {
-      const container = document.getElementById('shareLinkContainer');
-      const input = document.getElementById('shareInput');
-      const genBtn = document.getElementById('generateShareBtn');
-      const revBtn = document.getElementById('revokeShareBtn');
-      
-      if (input) input.value = data.shareUrl;
-      if (container) container.classList.remove('d-none');
-      if (genBtn) genBtn.classList.add('d-none');
-      if (revBtn) revBtn.classList.remove('d-none');
-    } else {
-      alert('Lỗi: ' + (data.error || 'Không thể tạo liên kết chia sẻ'));
-    }
-  } catch (err) {
-    console.error('Generate share error:', err);
-    alert('Đã xảy ra lỗi khi tạo liên kết chia sẻ');
-  }
-}
-
 // Helper for SweetAlert2 settings based on current theme
 function getSwalConfig() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -63,69 +31,6 @@ function getSwalConfig() {
     confirmButtonColor: '#6366f1',
     cancelButtonColor: '#6b7280',
   };
-}
-
-// Revoke share link
-async function revokeShareLink(documentId) {
-  const result = await Swal.fire({
-    title: 'Hủy chia sẻ?',
-    text: 'Bạn có chắc chắn muốn hủy chia sẻ tài liệu này? Liên kết chia sẻ hiện tại sẽ không thể sử dụng được nữa.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Đồng ý',
-    cancelButtonText: 'Hủy',
-    ...getSwalConfig()
-  });
-
-  if (!result.isConfirmed) return;
-
-  try {
-    const response = await fetch('/share/delete', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({ documentId })
-    });
-    
-    const data = await response.json();
-    if (response.ok && data.success) {
-      const container = document.getElementById('shareLinkContainer');
-      const input = document.getElementById('shareInput');
-      const genBtn = document.getElementById('generateShareBtn');
-      const revBtn = document.getElementById('revokeShareBtn');
-      
-      if (input) input.value = '';
-      if (container) container.classList.add('d-none');
-      if (genBtn) genBtn.classList.remove('d-none');
-      if (revBtn) revBtn.classList.add('d-none');
-      
-      Swal.fire({
-        title: 'Đã hủy!',
-        text: 'Liên kết chia sẻ đã được hủy thành công.',
-        icon: 'success',
-        timer: 1500,
-        showConfirmButton: false,
-        ...getSwalConfig()
-      });
-    } else {
-      Swal.fire({
-        title: 'Lỗi!',
-        text: data.error || 'Không thể hủy chia sẻ',
-        icon: 'error',
-        ...getSwalConfig()
-      });
-    }
-  } catch (err) {
-    console.error('Revoke share error:', err);
-    Swal.fire({
-      title: 'Lỗi!',
-      text: 'Đã xảy ra lỗi khi hủy chia sẻ',
-      icon: 'error',
-      ...getSwalConfig()
-    });
-  }
 }
 
 // Delete document
@@ -483,14 +388,11 @@ async function sendAiMessage(e) {
 
   const aiReadDocCheckbox = document.getElementById('aiReadDocCheckbox');
   const aiDocIdInput = document.getElementById('aiDocId');
-  const aiShareTokenInput = document.getElementById('aiShareToken');
 
   let docId = null;
-  let shareToken = null;
 
   if (aiReadDocCheckbox && aiReadDocCheckbox.checked) {
     if (aiDocIdInput) docId = aiDocIdInput.value;
-    if (aiShareTokenInput) shareToken = aiShareTokenInput.value;
   }
 
   try {
@@ -503,8 +405,7 @@ async function sendAiMessage(e) {
       body: JSON.stringify({
         message: msgText,
         history: aiChatHistory,
-        documentId: docId,
-        shareToken: shareToken
+        documentId: docId
       })
     });
 
