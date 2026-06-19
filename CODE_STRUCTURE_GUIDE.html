@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cấu Trúc Mã Nguồn - CloudStudy</title>
+  
+  <!-- Google Fonts: Inter & Fira Code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Dark Theme (Default) */
+      --bg-primary: #080d16;
+      --bg-secondary: #111a2e;
+      --bg-tertiary: #080d16;
+      --border-color: #243557;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-color: #06b6d4;
+      --accent-hover: #0891b2;
+      --accent-gradient: linear-gradient(135deg, #06b6d4 0%, #0d9488 100%);
+      --success-color: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.1);
+      --success-border: rgba(16, 185, 129, 0.2);
+      --info-color: #3b82f6;
+      --info-bg: rgba(59, 130, 246, 0.1);
+      --info-border: rgba(59, 130, 246, 0.2);
+      --warning-color: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.1);
+      --warning-border: rgba(245, 158, 11, 0.2);
+      --code-bg: #040810;
+      --sidebar-width: 280px;
+      --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --glow-shadow: 0 0 20px rgba(6, 182, 212, 0.15);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #f1f5f9;
+      --border-color: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent-color: #0891b2;
+      --accent-hover: #0e7490;
+      --accent-gradient: linear-gradient(135deg, #0891b2 0%, #0f766e 100%);
+      --success-color: #059669;
+      --success-bg: rgba(5, 150, 105, 0.08);
+      --success-border: rgba(5, 150, 105, 0.15);
+      --info-color: #2563eb;
+      --info-bg: rgba(37, 99, 235, 0.08);
+      --info-border: rgba(37, 99, 235, 0.15);
+      --warning-color: #d97706;
+      --warning-bg: rgba(217, 119, 6, 0.08);
+      --warning-border: rgba(217, 119, 6, 0.15);
+      --code-bg: #f1f5f9;
+      --card-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --glow-shadow: 0 4px 20px rgba(8, 145, 178, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      line-height: 1.6;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    #progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background: var(--accent-gradient);
+      width: 0%;
+      z-index: 1000;
+      transition: width 0.1s;
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Navigation */
+    aside {
+      width: var(--sidebar-width);
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow-y: auto;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--accent-gradient);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 10px rgba(6, 182, 212, 0.3);
+    }
+
+    .logo-text {
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.5px;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item a:hover {
+      color: var(--text-main);
+      background-color: var(--bg-tertiary);
+    }
+
+    .nav-item.active a {
+      color: white;
+      background: var(--accent-gradient);
+      box-shadow: var(--glow-shadow);
+    }
+
+    .theme-toggle-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 2rem;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--accent-color);
+      box-shadow: var(--glow-shadow);
+    }
+
+    /* Main Content Area */
+    main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      padding: 3rem 4rem;
+      max-width: 1050px;
+    }
+
+    header {
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .badge-offline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.75rem;
+      background-color: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      color: var(--accent-color);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 50px;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 0.75rem;
+      line-height: 1.2;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 750px;
+    }
+
+    /* Sections and Layout */
+    .doc-section {
+      scroll-margin-top: 2rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .doc-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2.25rem;
+      box-shadow: var(--card-shadow);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .doc-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: var(--accent-gradient);
+    }
+
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.75rem;
+    }
+
+    .section-icon {
+      font-size: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .lead-text {
+      font-size: 1.05rem;
+      color: var(--text-main);
+      margin-bottom: 1.5rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      background-color: var(--code-bg);
+      color: #22d3ee;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    /* Directory Tree Component */
+    .folder-tree {
+      background-color: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.875rem;
+      line-height: 1.7;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+    }
+
+    .tree-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.15rem 0;
+    }
+
+    .tree-indent {
+      color: var(--border-color);
+      letter-spacing: -2px;
+    }
+
+    .tree-icon {
+      flex-shrink: 0;
+      width: 18px;
+      text-align: center;
+    }
+
+    .tree-name {
+      font-weight: 500;
+    }
+
+    .tree-name.dir {
+      color: #22d3ee;
+    }
+
+    .tree-name.file {
+      color: #e2e8f0;
+    }
+
+    .tree-comment {
+      color: var(--text-muted);
+      margin-left: 1rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+    }
+
+    /* Lists */
+    ul.doc-list {
+      list-style: none;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    ul.doc-list li {
+      position: relative;
+      padding-left: 1.75rem;
+    }
+
+    ul.doc-list li::before {
+      content: "➔";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--accent-color);
+      font-weight: bold;
+    }
+
+    ul.doc-list li strong {
+      color: var(--text-main);
+    }
+
+    /* Alert boxes */
+    .alert-box {
+      border-left: 4px solid;
+      padding: 1.25rem;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .alert-box.info {
+      background-color: var(--info-bg);
+      border-left-color: var(--info-color);
+      border: 1px solid var(--info-border);
+      border-left-width: 4px;
+    }
+
+    .alert-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .alert-box.info .alert-title { color: var(--info-color); }
+    .alert-content { font-size: 0.9rem; }
+
+    /* Footer */
+    footer {
+      margin-top: 5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    @media (max-width: 1024px) {
+      .container { flex-direction: column; }
+      aside {
+        width: 100%;
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: 1.5rem;
+        height: auto;
+      }
+      main {
+        margin-left: 0;
+        padding: 2rem 1.5rem;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progress-bar"></div>
+
+  <div class="container">
+    
+    <!-- Sidebar Navigation -->
+    <aside>
+      <div>
+        <div class="logo-container">
+          <div class="logo-icon">C</div>
+          <div class="logo-text">CloudStudy</div>
+        </div>
+        
+        <nav>
+          <ul class="nav-list">
+            <li class="nav-item active" id="menu-intro">
+              <a href="#intro">📖 Tổng Quan</a>
+            </li>
+            <li class="nav-item" id="menu-structure">
+              <a href="#structure">📁 Cấu Trúc Thư Mục</a>
+            </li>
+            <li class="nav-item" id="menu-pattern">
+              <a href="#pattern">🏛️ Mô Hình Service-Controller</a>
+            </li>
+            <li class="nav-item" id="menu-view-engine">
+              <a href="#view-engine">🎨 Giao Diện EJS Partials</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <button class="theme-toggle-btn" id="theme-toggle">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Giao diện sáng</span>
+      </button>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main>
+      
+      <!-- Introduction Section -->
+      <section id="intro" class="doc-section">
+        <header>
+          <div class="badge-offline">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-right: 4px;">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Kiến Trúc Phần Mềm
+          </div>
+          <h1>Cấu Trúc Code & Mô Hình Kiến Trúc</h1>
+          <p>Tài liệu giới thiệu cấu trúc thư mục chi tiết và mô hình tách biệt logic nghiệp vụ Service-Controller được áp dụng trong hệ thống <strong>CloudStudy</strong>.</p>
+        </header>
+
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">🏛️</span>
+            <h2 class="section-title">Triết lý thiết kế mã nguồn</h2>
+          </div>
+          <div class="lead-text">
+            Dự án hướng tới sự rõ ràng, dễ bảo trì và dễ mở rộng. Toàn bộ mã nguồn sử dụng cơ chế module hóa ES Modules (sử dụng <code>import/export</code> của Node.js hiện đại), chia tách rạch ròi giữa các lớp dữ liệu (Models), logic định tuyến (Routes), logic trung gian (Middlewares), xử lý giao dịch dữ liệu (Services) và điều hướng hiển thị (Controllers).
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Folder Structure -->
+      <section id="structure" class="doc-section">
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">📁</span>
+            <h2 class="section-title">Sơ Đồ Cấu Trúc Thư Mục Dự Án</h2>
+          </div>
+          
+          <p>Dưới đây là sơ đồ hình cây chi tiết của mã nguồn ứng dụng:</p>
+
+          <div class="folder-tree">
+            <div class="tree-line">
+              <span class="tree-name dir">CloudStudy/</span>
+              <span class="tree-comment">// Thư mục gốc dự án</span>
+            </div>
+            <div class="tree-line">
+              <span class="tree-indent">&nbsp;&nbsp;├──</span>
+              <span class="tree-icon">📁</span>
+              <span class="tree-name dir">config/</span>
+              <span class="tree-comment">// Chứa file cấu hình kết nối Database</span>
+            </div>
+            <div class="tree-line">
+              <span class="tree-indent">&nbsp;&nbsp;├──</span>
+              <span class="tree-icon">📁</span>
+              <span class="tree-name dir">controllers/</span>
+              <span class="tree-comment">// Lớp điều phối dữ liệu và điều hướng trang (HTTP)</span>
+            </div>
+            <div class="tree-line">
+              <span class="tree-indent">&nbsp;&nbsp;├──</span>
+              <span class="tree-icon">📁</span>
+              <span class="tree-name dir">middlewares/</span>
+              <span class="tree-comment">// Chứa bộ lọc logic (Auth check, file upload filter, folder tree parser)</span>
+            </div>
+            <div class="tree-line">
+              <span class="tree-indent">&nbsp;&nbsp;├──</span>
+              <span class="tree-icon">📁</span>
+              <span class="tree-name dir">models/</span>
+              <span class="tree-comment">// Lược đồ định nghĩa cấu trúc dữ liệu Mongoose Schemas</span>
+            </div>
+            <div class="tree-line">
+              <span class="tree-indent">&nbsp;&nbsp;├──</span>
+              <span class="tree-icon">📁</span>
+              <span class="tree-name dir">public/</span>
+              <span class="tree-comment">// Tài nguyên tĩnh cho trình duyệt (CSS, Front-end JS, Images)</span>
+            </div>
+            <div class="tree-line">
+              <span class="tree-indent">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──</span>
+              <span class="tree-icon">📁</span>
+              <span class="tree-name dir">css/</span>
+              <span class="tree-comment">// Chứa các file giao diện CSS chính</span>
+            </div>
+            <div class="tree-line">
+              <span class="tree-indent">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└──</span>
+              <span class="tree-icon">📁</span>
+              <span class="tree-name dir">js/</span>
+              <span class="tree-comment">// Scripts xử lý giao tiếp AJAX client (chat AI, rename, delete)</span>
+            </div>
+            <div class="tree-line">
+              <span class="tree-indent">&nbsp;&nbsp;├──</span>
+              <span class="tree-icon">📁</span>
+              <span class="tree-name dir">routes/</span>
+              <span class="tree-comment">// Định nghĩa đường dẫn và ánh xạ endpoint tới Controllers</span>
+            </div>
+            <div class="tree-line">
+              <span class="tree-indent">&nbsp;&nbsp;├──</span>
+              <span class="tree-icon">📁</span>
+              <span class="tree-name dir">services/</span>
+              <span class="tree-comment">// Chứa toàn bộ LOGIC nghiệp vụ chính (AWS S3, Gemini, Database transactions)</span>
+            </div>
+            <div class="tree-line">
+              <span class="tree-indent">&nbsp;&nbsp;├──</span>
+              <span class="tree-icon">📁</span>
+              <span class="tree-name dir">utils/</span>
+              <span class="tree-comment">// Các hàm bổ trợ dùng chung (ví dụ: chuyển dung lượng file sang KB/MB)</span>
+            </div>
+            <div class="tree-line">
+              <span class="tree-indent">&nbsp;&nbsp;├──</span>
+              <span class="tree-icon">📁</span>
+              <span class="tree-name dir">views/</span>
+              <span class="tree-comment">// Chứa giao diện hiển thị mẫu EJS (Embedded JavaScript Templates)</span>
+            </div>
+            <div class="tree-line">
+              <span class="tree-indent">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└──</span>
+              <span class="tree-icon">📁</span>
+              <span class="tree-name dir">partials/</span>
+              <span class="tree-comment">// Chứa các khối HTML tái sử dụng (Header, Footer, Sidebar, Folder Tree)</span>
+            </div>
+            <div class="tree-line">
+              <span class="tree-indent">&nbsp;&nbsp;├──</span>
+              <span class="tree-icon">📄</span>
+              <span class="tree-name file">app.js</span>
+              <span class="tree-comment">// File khởi tạo, liên kết cấu hình và chạy máy chủ Express</span>
+            </div>
+            <div class="tree-line">
+              <span class="tree-indent">&nbsp;&nbsp;├──</span>
+              <span class="tree-icon">📄</span>
+              <span class="tree-name file">render.yaml</span>
+              <span class="tree-comment">// File Blueprint deploy tự động lên mây Render</span>
+            </div>
+            <div class="tree-line">
+              <span class="tree-indent">&nbsp;&nbsp;└──</span>
+              <span class="tree-icon">📄</span>
+              <span class="tree-name file">package.json</span>
+              <span class="tree-comment">// Liệt kê các thư viện phụ thuộc và scripts khởi chạy</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Service-Controller Pattern -->
+      <section id="pattern" class="doc-section">
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">🏛️</span>
+            <h2 class="section-title">Mô hình Service-Controller (Tách biệt Nghiệp vụ)</h2>
+          </div>
+          
+          <p>Nhằm đảm bảo dự án tối giản và sạch sẽ nhất, mã nguồn áp dụng triệt để kiến trúc <strong>Service-Controller Pattern</strong>:</p>
+
+          <ul class="doc-list" style="margin-top: 1rem; margin-bottom: 1.5rem;">
+            <li>
+              <strong>Controllers (Bộ điều hướng)</strong>: Chỉ làm nhiệm vụ nhận yêu cầu (Requests) từ khách hàng, trích xuất dữ liệu tham số (params, query, body), gọi tới lớp Service tương ứng, nhận về kết quả và trả về phản hồi (Response) dưới dạng hiển thị (render trang EJS) hoặc dữ liệu JSON. Tuyệt đối không chứa câu truy vấn cơ sở dữ liệu hoặc logic gọi API ngoài.
+            </li>
+            <li>
+              <strong>Services (Xử lý nghiệp vụ)</strong>: Nơi thực hiện công việc nặng nhọc và tính toán. Lớp Service đảm nhiệm:
+              <ul>
+                <li>Truy vấn trực tiếp MongoDB (tạo, cập nhật, xóa, tìm kiếm dữ liệu).</li>
+                <li>Xử lý logic truyền nhận dữ liệu với <strong>AWS S3 SDK</strong> (PutObject, GetObject, DeleteObject).</li>
+                <li>Logic kết nối và truy vết ngữ cảnh câu hỏi với <strong>Google Gemini API</strong>.</li>
+              </ul>
+            </li>
+          </ul>
+
+          <div class="alert-box info">
+            <div class="alert-title">💡 Lợi ích cho giảng viên:</div>
+            <div class="alert-content">
+              Cơ chế tách biệt này giúp mã nguồn có cấu trúc rõ ràng, dễ dàng viết các bài kiểm tra tự động (Unit Tests) cho từng dịch vụ riêng biệt mà không cần giả lập (mock) các request hay response phức tạp của Express.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: EJS Partials -->
+      <section id="view-engine" class="doc-section">
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">🎨</span>
+            <h2 class="section-title">Giao diện với EJS & Partials</h2>
+          </div>
+          
+          <p>Dự án sử dụng cơ chế render giao diện tại Server (Server-Side Rendering) thông qua View Engine <strong>EJS</strong>. Các thành phần giao diện lặp lại được chia nhỏ vào thư mục <code>views/partials/</code>:</p>
+
+          <ul class="doc-list" style="margin-top: 1rem;">
+            <li><strong>header.ejs</strong>: Khai báo cấu trúc HTML chuẩn, nạp các thư viện CSS (TailwindCSS v3 CDN, Font Awesome, Custom Main style) và cấu hình thẻ meta SEO.</li>
+            <li><strong>footer.ejs</strong>: Bản quyền chân trang và liên kết các file Javascript chung của dự án.</li>
+            <li><strong>sidebar.ejs</strong>: Thanh điều hướng bên trái đồng bộ trên tất cả các trang, hiển thị thông tin người dùng đang đăng nhập và nút Đăng xuất.</li>
+            <li><strong>folderTree.ejs</strong>: Thành phần chứa cây thư mục đệ quy động, cho phép hiển thị cấu trúc thư mục lồng nhau trực quan ở bất kỳ cấp độ nào.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer>
+        <p>© 2026 CloudStudy Project. Tài liệu cấu trúc mã nguồn.</p>
+      </footer>
+
+    </main>
+
+  </div>
+
+  <!-- Interactive JavaScript -->
+  <script>
+    const sections = document.querySelectorAll('.doc-section');
+    const navItems = {
+      'intro': document.getElementById('menu-intro'),
+      'structure': document.getElementById('menu-structure'),
+      'pattern': document.getElementById('menu-pattern'),
+      'view-engine': document.getElementById('menu-view-engine')
+    };
+
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('progress-bar').style.width = scrolled + '%';
+
+      let currentSection = 'intro';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        if (pageYOffset >= (sectionTop - 150)) {
+          currentSection = section.getAttribute('id');
+        }
+      });
+
+      Object.keys(navItems).forEach(key => {
+        if (key === currentSection) {
+          navItems[key].classList.add('active');
+        } else {
+          navItems[key].classList.remove('active');
+        }
+      });
+    });
+
+    // Theme Toggle Functionality
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const themeText = document.getElementById('theme-text');
+    
+    let currentTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    updateThemeUI(currentTheme);
+
+    themeToggleBtn.addEventListener('click', () => {
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      localStorage.setItem('theme', currentTheme);
+      updateThemeUI(currentTheme);
+    });
+
+    function updateThemeUI(theme) {
+      if (theme === 'dark') {
+        themeIcon.textContent = '☀️';
+        themeText.textContent = 'Giao diện sáng';
+      } else {
+        themeIcon.textContent = '🌙';
+        themeText.textContent = 'Giao diện tối';
+      }
+    }
+  </script>
+</body>
+</html>

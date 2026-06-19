@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tài Liệu Kiến Trúc & Thiết Lập AWS S3 - CloudStudy</title>
+  
+  <!-- Google Fonts: Inter & Fira Code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Mermaid.js CDN for visual diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+  <style>
+    :root {
+      /* Dark Theme (Default) */
+      --bg-primary: #0b1329;
+      --bg-secondary: #1c2541;
+      --bg-tertiary: #0b1329;
+      --border-color: #3a506b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-color: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-gradient: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
+      --success-color: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.1);
+      --success-border: rgba(16, 185, 129, 0.2);
+      --info-color: #06b6d4;
+      --info-bg: rgba(6, 182, 212, 0.1);
+      --info-border: rgba(6, 182, 212, 0.2);
+      --warning-color: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.1);
+      --warning-border: rgba(245, 158, 11, 0.2);
+      --code-bg: #0b0f19;
+      --sidebar-width: 280px;
+      --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --glow-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #f1f5f9;
+      --border-color: #cbd5e1;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --accent-color: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      --success-color: #059669;
+      --success-bg: rgba(5, 150, 105, 0.06);
+      --success-border: rgba(5, 150, 105, 0.12);
+      --info-color: #0891b2;
+      --info-bg: rgba(8, 145, 178, 0.06);
+      --info-border: rgba(8, 145, 178, 0.12);
+      --warning-color: #d97706;
+      --warning-bg: rgba(217, 119, 6, 0.06);
+      --warning-border: rgba(217, 119, 6, 0.12);
+      --code-bg: #f1f5f9;
+      --card-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -4px rgba(0,0,0,0.05);
+      --glow-shadow: 0 4px 20px rgba(37, 99, 235, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      line-height: 1.6;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    #progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background: var(--accent-gradient);
+      width: 0%;
+      z-index: 1000;
+      transition: width 0.1s;
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Navigation */
+    aside {
+      width: var(--sidebar-width);
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow-y: auto;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--accent-gradient);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+    }
+
+    .logo-text {
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.5px;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item a:hover {
+      color: var(--text-main);
+      background-color: var(--bg-tertiary);
+    }
+
+    .nav-item.active a {
+      color: white;
+      background: var(--accent-gradient);
+      box-shadow: var(--glow-shadow);
+    }
+
+    .nav-badge {
+      background: rgba(255, 255, 255, 0.12);
+      font-size: 0.7rem;
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      margin-left: auto;
+      font-weight: 600;
+    }
+
+    .theme-toggle-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 2rem;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--accent-color);
+      box-shadow: var(--glow-shadow);
+    }
+
+    /* Main Content Area */
+    main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      padding: 3rem 4rem;
+      max-width: 1050px;
+    }
+
+    header {
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .badge-offline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.75rem;
+      background-color: var(--info-bg);
+      border: 1px solid var(--info-border);
+      color: var(--info-color);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 50px;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 0.75rem;
+      line-height: 1.2;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 750px;
+    }
+
+    /* Sections and Layout */
+    .doc-section {
+      scroll-margin-top: 2rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .doc-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2.25rem;
+      box-shadow: var(--card-shadow);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .doc-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: var(--accent-gradient);
+    }
+
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.75rem;
+    }
+
+    .section-icon {
+      font-size: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .lead-text {
+      font-size: 1.05rem;
+      color: var(--text-main);
+      margin-bottom: 1.5rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      background-color: var(--code-bg);
+      color: #60a5fa;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    /* Diagram wrapper */
+    .diagram-wrapper {
+      background-color: #0b0f19;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+    }
+
+    .mermaid {
+      background-color: transparent !important;
+    }
+
+    /* Directory Tree Component */
+    .folder-tree {
+      background-color: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.875rem;
+      line-height: 1.7;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+    }
+
+    .tree-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.15rem 0;
+    }
+
+    .tree-indent {
+      color: var(--border-color);
+      letter-spacing: -2px;
+    }
+
+    .tree-icon {
+      flex-shrink: 0;
+      width: 18px;
+      text-align: center;
+    }
+
+    .tree-name {
+      font-weight: 500;
+    }
+
+    .tree-name.dir {
+      color: #38bdf8;
+    }
+
+    .tree-name.file {
+      color: #e2e8f0;
+    }
+
+    .tree-comment {
+      color: var(--text-muted);
+      margin-left: 1rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+    }
+
+    /* Key Flow Visuals */
+    .flow-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+
+    .flow-step {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1.25rem;
+      position: relative;
+    }
+
+    .flow-step-num {
+      width: 28px;
+      height: 28px;
+      background: var(--accent-gradient);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .flow-step-content {
+      flex: 1;
+    }
+
+    .flow-step-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .flow-step-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Lists */
+    ul.doc-list {
+      list-style: none;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    ul.doc-list li {
+      position: relative;
+      padding-left: 1.75rem;
+    }
+
+    ul.doc-list li::before {
+      content: "➔";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--accent-color);
+      font-weight: bold;
+    }
+
+    ul.doc-list li strong {
+      color: var(--text-main);
+    }
+
+    /* Alert boxes */
+    .alert-box {
+      border-left: 4px solid;
+      padding: 1.25rem;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .alert-box.info {
+      background-color: var(--info-bg);
+      border-left-color: var(--info-color);
+      border: 1px solid var(--info-border);
+      border-left-width: 4px;
+    }
+
+    .alert-box.success {
+      background-color: var(--success-bg);
+      border-left-color: var(--success-color);
+      border: 1px solid var(--success-border);
+      border-left-width: 4px;
+    }
+
+    .alert-box.warning {
+      background-color: var(--warning-bg);
+      border-left-color: var(--warning-color);
+      border: 1px solid var(--warning-border);
+      border-left-width: 4px;
+    }
+
+    .alert-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .alert-box.info .alert-title { color: var(--info-color); }
+    .alert-box.success .alert-title { color: var(--success-color); }
+    .alert-box.warning .alert-title { color: var(--warning-color); }
+
+    .alert-content {
+      font-size: 0.9rem;
+    }
+
+    /* Tech Cards Grid */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .tech-card {
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1.25rem;
+      transition: all 0.2s ease;
+    }
+
+    .tech-card:hover {
+      border-color: var(--accent-color);
+      transform: translateY(-2px);
+    }
+
+    .tech-name {
+      font-weight: 700;
+      font-size: 1.05rem;
+      margin-bottom: 0.5rem;
+      color: #60a5fa;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tech-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    footer {
+      margin-top: 5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .container { flex-direction: column; }
+      aside {
+        width: 100%;
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: 1.5rem;
+        height: auto;
+      }
+      main {
+        margin-left: 0;
+        padding: 2rem 1.5rem;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progress-bar"></div>
+
+  <div class="container">
+    
+    <!-- Sidebar Navigation -->
+    <aside>
+      <div>
+        <div class="logo-container">
+          <div class="logo-icon">C</div>
+          <div class="logo-text">CloudStudy</div>
+        </div>
+        
+        <nav>
+          <ul class="nav-list">
+            <li class="nav-item active" id="menu-intro">
+              <a href="#intro">📖 Tổng Quan</a>
+            </li>
+            <li class="nav-item" id="menu-aws-diagram">
+              <a href="#aws-diagram">📐 Sơ đồ AWS</a>
+            </li>
+            <li class="nav-item" id="menu-arch">
+              <a href="#arch">🛡️ Bảo Mật S3</a>
+            </li>
+            <li class="nav-item" id="menu-upload">
+              <a href="#upload">📤 Luồng Tải Lên</a>
+            </li>
+            <li class="nav-item" id="menu-preview">
+              <a href="#preview">👁️ Luồng Preview</a>
+            </li>
+            <li class="nav-item" id="menu-tree">
+              <a href="#tree">📁 Cấu Trúc Thư Mục</a>
+            </li>
+            <li class="nav-item" id="menu-tech">
+              <a href="#tech">🛠️ Công Nghệ</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <button class="theme-toggle-btn" id="theme-toggle">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Giao diện sáng</span>
+      </button>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main>
+      
+      <!-- Introduction Section -->
+      <section id="intro" class="doc-section">
+        <header>
+          <div class="badge-offline">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-right: 4px;">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Tài Liệu Đồ Án Học Tập
+          </div>
+          <h1>Kiến Trúc Sử Dụng Dịch Vụ AWS</h1>
+          <p>Tài liệu kỹ thuật giải thích cách tích hợp, phân quyền và điều hướng dữ liệu của các dịch vụ đám mây AWS dùng trong dự án <strong>CloudStudy</strong>.</p>
+        </header>
+
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">💡</span>
+            <h2 class="section-title">Tổng quan kiến trúc</h2>
+          </div>
+          <div class="lead-text">
+            Dự án sử dụng dịch vụ <strong>Amazon Simple Storage Service (AWS S3)</strong> làm hệ thống lưu trữ đối tượng đám mây (Cloud Object Storage) chính để quản lý tất cả các tài liệu bài giảng, tệp tin và video học tập. Toàn bộ quyền truy cập S3 được quản lý chặt chẽ thông qua <strong>AWS IAM (Identity and Access Management)</strong> để đảm bảo tệp tin được bảo mật và chỉ truy cập được bởi những người dùng hợp lệ.
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: AWS Architecture Diagram -->
+      <section id="aws-diagram" class="doc-section">
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">📐</span>
+            <h2 class="section-title">Sơ Đồ Kiến Trúc Hệ Thống & AWS</h2>
+          </div>
+          
+          <p>Dưới đây là sơ đồ chi tiết biểu diễn luồng đi của dữ liệu giữa trình duyệt của Sinh viên (Client), Máy chủ ứng dụng (NodeJS Server), Cơ sở dữ liệu (MongoDB Atlas) và các dịch vụ đám mây của **Amazon Web Services (S3, IAM)**:</p>
+
+          <div class="diagram-wrapper">
+            <pre class="mermaid">
+graph TD
+    subgraph Client ["Client (Trình duyệt Sinh viên)"]
+        Browser["Trình duyệt Client"]
+    end
+
+    subgraph ServerEnvironment ["Môi trường Hosting & API"]
+        Render["Render Cloud (NodeJS Express Server)"]
+        Mongo["MongoDB Atlas (Lưu trữ Metadata)"]
+        Gemini["Google Gemini API (Trợ lý AI)"]
+    end
+
+    subgraph AWS ["Amazon Web Services (AWS)"]
+        S3["AWS S3 Bucket (Lưu trữ tệp gốc - Private)"]
+        IAM["AWS IAM (Identity & Access Management)"]
+    end
+
+    %% Upload Flow
+    Browser -->|1. Submit File dạng multipart/form-data| Render
+    Render -->|2. PutObject Lọc buffer & truyền file| S3
+    S3 -.->|3. Trả về S3 Key & S3 URL| Render
+    Render -->|4. Lưu Metadata tệp & S3 Key vào DB| Mongo
+
+    %% Read/Stream Flow
+    Browser -->|5. Yêu cầu xem/tải file| Render
+    Render -->|6. Gửi lệnh GetObject kèm S3 Key| S3
+    S3 -->|7. Trả về luồng dữ liệu (Readable Stream)| Render
+    Render -->|8. stream.pipe(res) để truyền dữ liệu| Browser
+
+    %% Gemini Flow
+    Browser -->|9. Hỏi AI tóm tắt tài liệu| Render
+    Render -->|10. Tải stream tệp từ S3| S3
+    Render -->|11. Truyền file đính kèm Base64/Text| Gemini
+    Gemini -->|12. Trả câu trả lời phân tích| Render
+    Render -->|13. Hiển thị câu trả lời AI trên khung chat| Browser
+
+    %% IAM Protection
+    IAM -.->|Cấp quyền hạn tối thiểu cho API Access| S3
+    Render -.->|Xác thực kết nối bằng Access Key của IAM User| IAM
+
+    %% Styling
+    classDef client fill:#2563eb,stroke:#1d4ed8,color:#fff,stroke-width:2px;
+    classDef server fill:#6366f1,stroke:#4f46e5,color:#fff,stroke-width:2px;
+    classDef aws fill:#d97706,stroke:#b45309,color:#fff,stroke-width:2px;
+    classDef db fill:#059669,stroke:#047857,color:#fff,stroke-width:2px;
+    
+    class Browser client;
+    class Render,Gemini server;
+    class S3,IAM aws;
+    class Mongo db;
+            </pre>
+          </div>
+
+          <div class="alert-box info" style="margin-top: 1.5rem;">
+            <div class="alert-title">💡 Giải thích thuật ngữ cho giảng viên:</div>
+            <div class="alert-content">
+              <ul>
+                <li><strong>AWS S3 (Simple Storage Service)</strong>: Nơi lưu trữ vật lý các file tài liệu. Bucket được thiết lập ở chế độ **Private hoàn toàn** (Block all public access).</li>
+                <li><strong>AWS IAM (Identity and Access Management)</strong>: Quản lý danh tính và phân quyền. Một **IAM Policy** được định nghĩa để giới hạn quyền tối thiểu cho server (chỉ được Ghi, Đọc, và Xóa đối tượng; không có quyền xóa Bucket). Một **IAM User** đại diện cho NodeJS Server được cấp **Access Key ID** và **Secret Access Key** để ký xác thực kết nối.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Core Security -->
+      <section id="arch" class="doc-section">
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">🛡️</span>
+            <h2 class="section-title">Cơ Chế Bảo Mật & Piping Stream</h2>
+          </div>
+          
+          <p>Mô hình bảo mật của CloudStudy sử dụng kiến trúc <strong>Reverse Proxy</strong> để phân phối file an toàn:</p>
+
+          <ul class="doc-list" style="margin-top: 1rem;">
+            <li><strong>Không để lộ URL S3 trực tiếp</strong>: Địa chỉ URL của S3 Bucket hoàn toàn được giấu kín. Người dùng bên ngoài chỉ nhìn thấy địa chỉ API của máy chủ Express (ví dụ: <code>/document/12345/download</code>).</li>
+            <li><strong>Kiểm soát quyền truy cập tại Server</strong>: Máy chủ NodeJS Express sẽ nhận request, kiểm tra phiên đăng nhập (Session) của sinh viên trong cơ sở dữ liệu. Nếu người dùng hợp lệ, Server mới gửi lệnh lấy tệp từ AWS S3.</li>
+            <li><strong>Tối ưu hóa tài nguyên (Piping Stream)</strong>: Khi tệp tin được trả về từ S3 dưới dạng luồng dữ liệu (ReadableStream), server không ghi file ra đĩa cứng server mà sử dụng hàm <code>stream.pipe(res)</code> để truyền trực tiếp dữ liệu theo thời gian thực về trình duyệt của khách hàng. Cơ chế này giúp server tiêu thụ bộ nhớ RAM tối thiểu (chỉ vài Kilobytes) kể cả khi truyền tải tệp lớn hoặc stream video dài.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Section: Upload Flow -->
+      <section id="upload" class="doc-section">
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">📤</span>
+            <h2 class="section-title">Luồng Tải Lên (Upload File)</h2>
+          </div>
+
+          <p>Quy trình tải tệp tin của sinh viên lên S3 thông qua các thành phần công nghệ:</p>
+
+          <div class="flow-container">
+            <div class="flow-step">
+              <div class="flow-step-num">1</div>
+              <div class="flow-step-content">
+                <div class="flow-step-title">Client gửi tệp tin</div>
+                <div class="flow-step-desc">Trình duyệt client đóng gói tệp tin trong request gửi lên API <code>POST /upload</code>.</div>
+              </div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">2</div>
+              <div class="flow-step-content">
+                <div class="flow-step-title">Multer đệm dữ liệu vào RAM</div>
+                <div class="flow-step-desc">Thư viện <code>multer</code> (Memory Storage) đệm tệp dưới dạng Buffer trong bộ nhớ tạm thời của máy chủ.</div>
+              </div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">3</div>
+              <div class="flow-step-content">
+                <div class="flow-step-title">Gửi dữ liệu lên AWS S3</div>
+                <div class="flow-step-desc"><code>s3Service</code> tạo lệnh <code>PutObjectCommand</code> chứa file Buffer, định nghĩa <code>ContentType</code> và gửi trực tiếp lên S3 bucket thông qua AWS SDK v3.</div>
+              </div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">4</div>
+              <div class="flow-step-content">
+                <div class="flow-step-title">Lưu Metadata vào MongoDB</div>
+                <div class="flow-step-desc">Sau khi S3 trả về mã thành công, server tiến hành lưu trữ Metadata tệp (tên tệp, s3Key, kích thước, định dạng, owner) vào database MongoDB để quản lý hiển thị.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Preview Flow -->
+      <section id="preview" class="doc-section">
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">👁️</span>
+            <h2 class="section-title">Luồng Preview (Xem Trước) & Xem tài liệu</h2>
+          </div>
+
+          <p>Ứng dụng tích hợp trình xem trước tài liệu trực tiếp trên trang chi tiết nhằm nâng cao trải nghiệm học tập:</p>
+          
+          <ul class="doc-list" style="margin-top: 1rem; margin-bottom: 1.5rem;">
+            <li><strong>Hình ảnh</strong>: Render trực tiếp bằng thẻ <code>&lt;img src="/document/:id/download"&gt;</code>.</li>
+            <li><strong>Tài liệu PDF</strong>: Nhúng bằng thẻ <code>&lt;iframe src="/document/:id/download#toolbar=0"&gt;</code> giúp đọc tài liệu dễ dàng, ẩn thanh công cụ nguyên bản để hạn chế tải lén tài liệu.</li>
+            <li><strong>Video học tập</strong>: Sử dụng thẻ HTML5 <code>&lt;video controls src="/document/:id/download"&gt;</code> cho phép tua và stream bài giảng trực tuyến.</li>
+          </ul>
+
+          <div class="alert-box success">
+            <div class="alert-title">🤖 Trợ lý AI đọc tài liệu:</div>
+            <div class="alert-content">
+              Khi người dùng kích hoạt "Cho phép AI đọc tệp", API `/ai/chat` sẽ lấy luồng stream của tệp từ S3. 
+              <ul>
+                <li>Đối với file text/code: Đọc dạng chuỗi văn bản và chèn vào prompt của Gemini.</li>
+                <li>Đối với file PDF/Hình ảnh: Chuyển đổi sang chuỗi Base64 và truyền dưới dạng dữ liệu đa phương tiện (`inlineData`) để Gemini tự động đọc hiểu trực tiếp.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Folder Tree -->
+      <section id="tree" class="doc-section">
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">📁</span>
+            <h2 class="section-title">Cấu Trúc Thư Mục Dự Án (MVC + Services)</h2>
+          </div>
+
+          <div class="folder-tree">
+            <div class="tree-line"><span class="tree-name dir">f:\CloudStudy</span><span class="tree-comment">// Thư mục gốc dự án</span></div>
+            <div class="tree-line"><span class="tree-indent">├── </span><span class="tree-name dir">config/</span><span class="tree-comment">// Cấu hình kết nối</span></div>
+            <div class="tree-line"><span class="tree-indent">│   ├── </span><span class="tree-name file">db.js</span><span class="tree-comment">// Kết nối MongoDB Atlas</span></div>
+            <div class="tree-line"><span class="tree-indent">│   └── </span><span class="tree-name file">s3.js</span><span class="tree-comment">// Khởi tạo AWS S3 Client kết nối</span></div>
+            <div class="tree-line"><span class="tree-indent">├── </span><span class="tree-name dir">controllers/</span><span class="tree-comment">// Tầng Controller (Điều hướng giao diện/JSON)</span></div>
+            <div class="tree-line"><span class="tree-indent">│   ├── </span><span class="tree-name file">authController.js</span><span class="tree-comment">// Điều phối Đăng ký/Đăng nhập</span></div>
+            <div class="tree-line"><span class="tree-indent">│   ├── </span><span class="tree-name file">dashboardController.js</span><span class="tree-comment">// Điều phối trang Dashboard</span></div>
+            <div class="tree-line"><span class="tree-indent">│   ├── </span><span class="tree-name file">documentController.js</span><span class="tree-comment">// Điều phối tệp tin</span></div>
+            <div class="tree-line"><span class="tree-indent">│   └── </span><span class="tree-name file">folderController.js</span><span class="tree-comment">// Điều phối thư mục học tập</span></div>
+            <div class="tree-line"><span class="tree-indent">├── </span><span class="tree-name dir">services/</span><span class="tree-comment">// Tầng Service (Xử lý nghiệp vụ chính)</span></div>
+            <div class="tree-line"><span class="tree-indent">│   ├── </span><span class="tree-name file">authService.js</span><span class="tree-comment">// Xử lý đăng nhập, mật khẩu, đăng ký</span></div>
+            <div class="tree-line"><span class="tree-indent">│   ├── </span><span class="tree-name file">dashboardService.js</span><span class="tree-comment">// Xử lý thống kê lưu trữ và tài liệu mới</span></div>
+            <div class="tree-line"><span class="tree-indent">│   ├── </span><span class="tree-name file">folderService.js</span><span class="tree-comment">// Xử lý logic tạo, đổi tên, và xóa đệ quy thư mục</span></div>
+            <div class="tree-line"><span class="tree-indent">│   ├── </span><span class="tree-name file">documentService.js</span><span class="tree-comment">// Xử lý upload, stream tệp, xóa tệp, tìm kiếm</span></div>
+            <div class="tree-line"><span class="tree-indent">│   ├── </span><span class="tree-name file">s3Service.js</span><span class="tree-comment">// Giao tiếp API gửi tệp, xóa tệp trên AWS S3</span></div>
+            <div class="tree-line"><span class="tree-indent">│   └── </span><span class="tree-name file">aiService.js</span><span class="tree-comment">// Giao tiếp Gemini API đọc hiểu tài liệu từ S3</span></div>
+            <div class="tree-line"><span class="tree-indent">└── </span><span class="tree-name file">app.js</span><span class="tree-comment">// Điểm chạy Express chính</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Technologies -->
+      <section id="tech" class="doc-section">
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">🛠️</span>
+            <h2 class="section-title">Danh Sách Công Nghệ Sử Dụng</h2>
+          </div>
+
+          <div class="tech-grid">
+            <div class="tech-card">
+              <div class="tech-name">🟢 Node.js Express</div>
+              <div class="tech-desc">Khung ứng dụng web điều khiển các router và logic ứng dụng ngầm.</div>
+            </div>
+            <div class="tech-card">
+              <div class="tech-name">☁️ AWS SDK (v3)</div>
+              <div class="tech-desc">Bộ thư viện chính thức của Amazon giúp kết nối nhanh tới S3.</div>
+            </div>
+            <div class="tech-card">
+              <div class="tech-name">🍃 MongoDB Atlas</div>
+              <div class="tech-desc">Database lưu trữ thông tin cây thư mục phân cấp bài học và metadata file.</div>
+            </div>
+            <div class="tech-card">
+              <div class="tech-name">🧠 Gemini 3.1 Flash Lite</div>
+              <div class="tech-desc">Engine AI xử lý phân tích đọc hiểu văn bản, file PDF và hình ảnh trực quan.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer>
+        <p>© 2026 CloudStudy Project. Tài liệu kiến trúc AWS S3.</p>
+      </footer>
+
+    </main>
+
+  </div>
+
+  <!-- Interactive JavaScript -->
+  <script>
+    // Initialize Mermaid diagrams based on dynamic system loaded status
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'dark',
+      securityLevel: 'loose'
+    });
+
+    const sections = document.querySelectorAll('.doc-section');
+    const navItems = {
+      'intro': document.getElementById('menu-intro'),
+      'aws-diagram': document.getElementById('menu-aws-diagram'),
+      'arch': document.getElementById('menu-arch'),
+      'upload': document.getElementById('menu-upload'),
+      'preview': document.getElementById('menu-preview'),
+      'tree': document.getElementById('menu-tree'),
+      'tech': document.getElementById('menu-tech')
+    };
+
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('progress-bar').style.width = scrolled + '%';
+
+      let currentSection = 'intro';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        if (pageYOffset >= (sectionTop - 150)) {
+          currentSection = section.getAttribute('id');
+        }
+      });
+
+      Object.keys(navItems).forEach(key => {
+        if (key === currentSection) {
+          navItems[key].classList.add('active');
+        } else {
+          navItems[key].classList.remove('active');
+        }
+      });
+    });
+
+    // Theme Toggle Functionality
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const themeText = document.getElementById('theme-text');
+    
+    let currentTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    updateThemeUI(currentTheme);
+
+    themeToggleBtn.addEventListener('click', () => {
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      localStorage.setItem('theme', currentTheme);
+      updateThemeUI(currentTheme);
+      
+      // Reload mermaid to re-render using updated theme styling (Loose refresh)
+      location.reload();
+    });
+
+    function updateThemeUI(theme) {
+      if (theme === 'dark') {
+        themeIcon.textContent = '☀️';
+        themeText.textContent = 'Giao diện sáng';
+      } else {
+        themeIcon.textContent = '🌙';
+        themeText.textContent = 'Giao diện tối';
+      }
+    }
+  </script>
+</body>
+</html>

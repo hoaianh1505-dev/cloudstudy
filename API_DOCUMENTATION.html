@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tài Liệu API & Router - CloudStudy</title>
+  
+  <!-- Google Fonts: Inter & Fira Code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Dark Theme (Default) */
+      --bg-primary: #0a0b10;
+      --bg-secondary: #141622;
+      --bg-tertiary: #0a0b10;
+      --border-color: #292d3e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-color: #f97316;
+      --accent-hover: #ea580c;
+      --accent-gradient: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
+      --success-color: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.1);
+      --success-border: rgba(16, 185, 129, 0.2);
+      --info-color: #3b82f6;
+      --info-bg: rgba(59, 130, 246, 0.1);
+      --info-border: rgba(59, 130, 246, 0.2);
+      --warning-color: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.1);
+      --warning-border: rgba(245, 158, 11, 0.2);
+      --code-bg: #050508;
+      --sidebar-width: 280px;
+      --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --glow-shadow: 0 0 20px rgba(249, 115, 22, 0.15);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #f1f5f9;
+      --border-color: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent-color: #ea580c;
+      --accent-hover: #c2410c;
+      --accent-gradient: linear-gradient(135deg, #ea580c 0%, #dc2626 100%);
+      --success-color: #059669;
+      --success-bg: rgba(5, 150, 105, 0.08);
+      --success-border: rgba(5, 150, 105, 0.15);
+      --info-color: #2563eb;
+      --info-bg: rgba(37, 99, 235, 0.08);
+      --info-border: rgba(37, 99, 235, 0.15);
+      --warning-color: #d97706;
+      --warning-bg: rgba(217, 119, 6, 0.08);
+      --warning-border: rgba(217, 119, 6, 0.15);
+      --code-bg: #f1f5f9;
+      --card-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --glow-shadow: 0 4px 20px rgba(234, 88, 12, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      line-height: 1.6;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    #progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background: var(--accent-gradient);
+      width: 0%;
+      z-index: 1000;
+      transition: width 0.1s;
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Navigation */
+    aside {
+      width: var(--sidebar-width);
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow-y: auto;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--accent-gradient);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+    }
+
+    .logo-text {
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.5px;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item a:hover {
+      color: var(--text-main);
+      background-color: var(--bg-tertiary);
+    }
+
+    .nav-item.active a {
+      color: white;
+      background: var(--accent-gradient);
+      box-shadow: var(--glow-shadow);
+    }
+
+    .theme-toggle-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 2rem;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--accent-color);
+      box-shadow: var(--glow-shadow);
+    }
+
+    /* Main Content Area */
+    main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      padding: 3rem 4rem;
+      max-width: 1050px;
+    }
+
+    header {
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .badge-offline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.75rem;
+      background-color: rgba(249, 115, 22, 0.1);
+      border: 1px solid rgba(249, 115, 22, 0.2);
+      color: var(--accent-color);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 50px;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 0.75rem;
+      line-height: 1.2;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 750px;
+    }
+
+    /* Sections and Layout */
+    .doc-section {
+      scroll-margin-top: 2rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .doc-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2.25rem;
+      box-shadow: var(--card-shadow);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .doc-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: var(--accent-gradient);
+    }
+
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.75rem;
+    }
+
+    .section-icon {
+      font-size: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .lead-text {
+      font-size: 1.05rem;
+      color: var(--text-main);
+      margin-bottom: 1.5rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      background-color: var(--code-bg);
+      color: #fb923c;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    /* API Endpoint Table Card */
+    .api-card {
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .api-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .api-method {
+      font-size: 0.8rem;
+      font-weight: 800;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .api-method.get { background-color: #10b981; }
+    .api-method.post { background-color: #3b82f6; }
+    .api-method.put { background-color: #f59e0b; }
+    .api-method.delete { background-color: #ef4444; }
+
+    .api-path {
+      font-family: 'Fira Code', monospace;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .api-auth {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 50px;
+      background-color: rgba(249, 115, 22, 0.1);
+      border: 1px solid rgba(249, 115, 22, 0.2);
+      color: var(--accent-color);
+      margin-left: auto;
+    }
+
+    .api-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    /* Params Table */
+    .params-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.85rem;
+    }
+
+    .params-table th, .params-table td {
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+    }
+
+    .params-table th {
+      background-color: var(--bg-secondary);
+      font-weight: 700;
+    }
+
+    .param-name {
+      font-family: 'Fira Code', monospace;
+      color: #38bdf8;
+      font-weight: 600;
+    }
+
+    .param-type {
+      font-family: 'Fira Code', monospace;
+      color: #f472b6;
+    }
+
+    .param-req {
+      color: #ef4444;
+      font-weight: 700;
+    }
+
+    /* Lists */
+    ul.doc-list {
+      list-style: none;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    ul.doc-list li {
+      position: relative;
+      padding-left: 1.75rem;
+    }
+
+    ul.doc-list li::before {
+      content: "➔";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--accent-color);
+      font-weight: bold;
+    }
+
+    ul.doc-list li strong {
+      color: var(--text-main);
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    @media (max-width: 1024px) {
+      .container { flex-direction: column; }
+      aside {
+        width: 100%;
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: 1.5rem;
+        height: auto;
+      }
+      main {
+        margin-left: 0;
+        padding: 2rem 1.5rem;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progress-bar"></div>
+
+  <div class="container">
+    
+    <!-- Sidebar Navigation -->
+    <aside>
+      <div>
+        <div class="logo-container">
+          <div class="logo-icon">C</div>
+          <div class="logo-text">CloudStudy</div>
+        </div>
+        
+        <nav>
+          <ul class="nav-list">
+            <li class="nav-item active" id="menu-intro">
+              <a href="#intro">📖 Tổng Quan API</a>
+            </li>
+            <li class="nav-item" id="menu-auth">
+              <a href="#auth">🔑 Authentication API</a>
+            </li>
+            <li class="nav-item" id="menu-folders">
+              <a href="#folders">📂 Thư Mục API</a>
+            </li>
+            <li class="nav-item" id="menu-documents">
+              <a href="#documents">📄 Tài Liệu API</a>
+            </li>
+            <li class="nav-item" id="menu-ai">
+              <a href="#ai">🤖 Trợ Lý AI Chat API</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <button class="theme-toggle-btn" id="theme-toggle">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Giao diện sáng</span>
+      </button>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main>
+      
+      <!-- Introduction Section -->
+      <section id="intro" class="doc-section">
+        <header>
+          <div class="badge-offline">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-right: 4px;">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Tài Liệu Kỹ Thuật API
+          </div>
+          <h1>Tài Liệu Định Tuyến & Hệ Thống Router</h1>
+          <p>Tài liệu liệt kê và giải thích chi tiết toàn bộ các cổng kết nối (Endpoints) và tham số truyền tải của dự án <strong>CloudStudy</strong>.</p>
+        </header>
+
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">🔗</span>
+            <h2 class="section-title">Tổng quan định tuyến (Routing)</h2>
+          </div>
+          <div class="lead-text">
+            Toàn bộ định tuyến trong dự án được tổ chức tách biệt theo mô hình hướng đối tượng: các Router trung gian cấu hình đường dẫn và kiểm tra quyền truy cập (Middlewares), sau đó điều phối logic xử lý đến lớp Controller tương ứng.
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Authentication API -->
+      <section id="auth" class="doc-section">
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">🔑</span>
+            <h2 class="section-title">Authentication API (Xác thực người dùng)</h2>
+          </div>
+          
+          <!-- GET /register -->
+          <div class="api-card">
+            <div class="api-header">
+              <span class="api-method get">GET</span>
+              <span class="api-path">/register</span>
+              <span class="api-auth">Khách (Guest)</span>
+            </div>
+            <div class="api-desc">Hiển thị giao diện HTML trang đăng ký tài khoản cho sinh viên mới.</div>
+          </div>
+
+          <!-- POST /register -->
+          <div class="api-card">
+            <div class="api-header">
+              <span class="api-method post">POST</span>
+              <span class="api-path">/register</span>
+              <span class="api-auth">Khách (Guest)</span>
+            </div>
+            <div class="api-desc">Xử lý biểu mẫu đăng ký. Băm (hash) mật khẩu và lưu tài khoản mới vào MongoDB.</div>
+            <table class="params-table">
+              <thead>
+                <tr>
+                  <th>Trường</th>
+                  <th>Kiểu</th>
+                  <th>Bắt buộc</th>
+                  <th>Mô tả</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="param-name">username</td>
+                  <td class="param-type">String</td>
+                  <td class="param-req">Có</td>
+                  <td>Tên hiển thị của sinh viên.</td>
+                </tr>
+                <tr>
+                  <td class="param-name">email</td>
+                  <td class="param-type">String</td>
+                  <td class="param-req">Có</td>
+                  <td>Email đăng nhập (không trùng lặp).</td>
+                </tr>
+                <tr>
+                  <td class="param-name">password</td>
+                  <td class="param-type">String</td>
+                  <td class="param-req">Có</td>
+                  <td>Mật khẩu của tài khoản.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- GET /login -->
+          <div class="api-card">
+            <div class="api-header">
+              <span class="api-method get">GET</span>
+              <span class="api-path">/login</span>
+              <span class="api-auth">Khách (Guest)</span>
+            </div>
+            <div class="api-desc">Hiển thị giao diện HTML trang đăng nhập hệ thống.</div>
+          </div>
+
+          <!-- POST /login -->
+          <div class="api-card">
+            <div class="api-header">
+              <span class="api-method post">POST</span>
+              <span class="api-path">/login</span>
+              <span class="api-auth">Khách (Guest)</span>
+            </div>
+            <div class="api-desc">Kiểm tra thông tin đăng nhập, thiết lập Session cho phiên làm việc của người dùng.</div>
+            <table class="params-table">
+              <thead>
+                <tr>
+                  <th>Trường</th>
+                  <th>Kiểu</th>
+                  <th>Bắt buộc</th>
+                  <th>Mô tả</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="param-name">email</td>
+                  <td class="param-type">String</td>
+                  <td class="param-req">Có</td>
+                  <td>Email tài khoản.</td>
+                </tr>
+                <tr>
+                  <td class="param-name">password</td>
+                  <td class="param-type">String</td>
+                  <td class="param-req">Có</td>
+                  <td>Mật khẩu tài khoản.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- GET /logout -->
+          <div class="api-card">
+            <div class="api-header">
+              <span class="api-method get">GET</span>
+              <span class="api-path">/logout</span>
+              <span class="api-auth">Yêu cầu Đăng nhập</span>
+            </div>
+            <div class="api-desc">Hủy bỏ Session của phiên làm việc hiện tại và điều hướng người dùng về trang đăng nhập.</div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Section: Folders API -->
+      <section id="folders" class="doc-section">
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">📂</span>
+            <h2 class="section-title">Folders API (Quản lý Thư mục)</h2>
+          </div>
+
+          <!-- GET /folders -->
+          <div class="api-card">
+            <div class="api-header">
+              <span class="api-method get">GET</span>
+              <span class="api-path">/folders</span>
+              <span class="api-auth">Yêu cầu Đăng nhập</span>
+            </div>
+            <div class="api-desc">Hiển thị toàn bộ danh sách thư mục gốc thuộc sở hữu của người dùng đang đăng nhập.</div>
+          </div>
+
+          <!-- GET /folder/:id -->
+          <div class="api-card">
+            <div class="api-header">
+              <span class="api-method get">GET</span>
+              <span class="api-path">/folder/:id</span>
+              <span class="api-auth">Yêu cầu Đăng nhập</span>
+            </div>
+            <div class="api-desc">Hiển thị danh sách các thư mục con và các tệp tài liệu nằm bên trong một thư mục cụ thể.</div>
+            <table class="params-table">
+              <thead>
+                <tr>
+                  <th>Tham số URL</th>
+                  <th>Kiểu</th>
+                  <th>Bắt buộc</th>
+                  <th>Mô tả</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="param-name">id</td>
+                  <td class="param-type">ObjectId</td>
+                  <td class="param-req">Có</td>
+                  <td>Mã ID định danh duy nhất của thư mục cần truy xuất.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- POST /folder/create -->
+          <div class="api-card">
+            <div class="api-header">
+              <span class="api-method post">POST</span>
+              <span class="api-path">/folder/create</span>
+              <span class="api-auth">Yêu cầu Đăng nhập</span>
+            </div>
+            <div class="api-desc">Tạo thư mục học tập mới. Hỗ trợ tạo thư mục lồng nhau.</div>
+            <table class="params-table">
+              <thead>
+                <tr>
+                  <th>Trường Body</th>
+                  <th>Kiểu</th>
+                  <th>Bắt buộc</th>
+                  <th>Mô tả</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="param-name">name</td>
+                  <td class="param-type">String</td>
+                  <td class="param-req">Có</td>
+                  <td>Tên thư mục muốn tạo mới.</td>
+                </tr>
+                <tr>
+                  <td class="param-name">parentFolder</td>
+                  <td class="param-type">ObjectId / Null</td>
+                  <td class="param-req">Không</td>
+                  <td>ID của thư mục cha. Nếu để trống hoặc null, thư mục sẽ được tạo ở ngoài cùng (Root).</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- POST /folder/:id/rename -->
+          <div class="api-card">
+            <div class="api-header">
+              <span class="api-method post">POST</span>
+              <span class="api-path">/folder/:id/rename</span>
+              <span class="api-auth">Yêu cầu Đăng nhập</span>
+            </div>
+            <div class="api-desc">Đổi tên thư mục học tập hiện có.</div>
+            <table class="params-table">
+              <thead>
+                <tr>
+                  <th>Tham số</th>
+                  <th>Kiểu</th>
+                  <th>Bắt buộc</th>
+                  <th>Mô tả</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="param-name">id (URL)</td>
+                  <td class="param-type">ObjectId</td>
+                  <td class="param-req">Có</td>
+                  <td>ID của thư mục cần đổi tên.</td>
+                </tr>
+                <tr>
+                  <td class="param-name">name (Body)</td>
+                  <td class="param-type">String</td>
+                  <td class="param-req">Có</td>
+                  <td>Tên mới muốn cập nhật cho thư mục.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- POST /folder/:id/delete -->
+          <div class="api-card">
+            <div class="api-header">
+              <span class="api-method post">POST</span>
+              <span class="api-path">/folder/:id/delete</span>
+              <span class="api-auth">Yêu cầu Đăng nhập</span>
+            </div>
+            <div class="api-desc">Xóa thư mục và thực hiện **Xóa bắc cầu (Cascade Delete)** toàn bộ các thư mục con và các file nằm bên trong nó (xóa tệp vật lý trên S3 và xóa bản ghi trên MongoDB).</div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Section: Documents API -->
+      <section id="documents" class="doc-section">
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">📄</span>
+            <h2 class="section-title">Documents API (Quản lý Tài liệu)</h2>
+          </div>
+
+          <!-- GET /upload -->
+          <div class="api-card">
+            <div class="api-header">
+              <span class="api-method get">GET</span>
+              <span class="api-path">/upload</span>
+              <span class="api-auth">Yêu cầu Đăng nhập</span>
+            </div>
+            <div class="api-desc">Hiển thị giao diện trang tải lên tài liệu học tập mới.</div>
+          </div>
+
+          <!-- POST /upload -->
+          <div class="api-card">
+            <div class="api-header">
+              <span class="api-method post">POST</span>
+              <span class="api-path">/upload</span>
+              <span class="api-auth">Yêu cầu Đăng nhập</span>
+            </div>
+            <div class="api-desc">Tải tệp tin lên AWS S3 (thông qua Multer đệm bộ nhớ) và ghi nhận siêu dữ liệu tệp vào MongoDB Atlas.</div>
+            <table class="params-table">
+              <thead>
+                <tr>
+                  <th>Trường</th>
+                  <th>Kiểu truyền tải</th>
+                  <th>Bắt buộc</th>
+                  <th>Mô tả</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="param-name">file</td>
+                  <td class="param-type">multipart/form-data</td>
+                  <td class="param-req">Có</td>
+                  <td>Tệp tin tài liệu bài giảng gửi đính kèm từ máy tính.</td>
+                </tr>
+                <tr>
+                  <td class="param-name">folderId</td>
+                  <td class="param-type">String / Null</td>
+                  <td class="param-req">Không</td>
+                  <td>ID thư mục đích muốn lưu tệp vào. Nếu trống, lưu ở thư mục gốc.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- GET /document/:id -->
+          <div class="api-card">
+            <div class="api-header">
+              <span class="api-method get">GET</span>
+              <span class="api-path">/document/:id</span>
+              <span class="api-auth">Yêu cầu Đăng nhập</span>
+            </div>
+            <div class="api-desc">Hiển thị trang chi tiết tài liệu, hỗ trợ khung đọc tài liệu PDF/Hình ảnh trực tiếp và khung Trợ lý ảo AI Chatbot học tập.</div>
+          </div>
+
+          <!-- GET /document/:id/download -->
+          <div class="api-card">
+            <div class="api-header">
+              <span class="api-method get">GET</span>
+              <span class="api-path">/document/:id/download</span>
+              <span class="api-auth">Yêu cầu Đăng nhập</span>
+            </div>
+            <div class="api-desc">Máy chủ Express nhận diện Key từ S3, tạo luồng dữ liệu truyền dẫn an toàn (Piping Stream) về trình duyệt của người dùng để xem trực tuyến hoặc lưu về đĩa.</div>
+          </div>
+
+          <!-- DELETE /document/:id -->
+          <div class="api-card">
+            <div class="api-header">
+              <span class="api-method delete">DELETE</span>
+              <span class="api-path">/document/:id</span>
+              <span class="api-auth">Yêu cầu Đăng nhập</span>
+            </div>
+            <div class="api-desc">Xóa tệp tin vật lý tương ứng trên AWS S3 và đồng thời xóa thông tin siêu dữ liệu của tệp trong MongoDB.</div>
+          </div>
+
+          <!-- GET /search -->
+          <div class="api-card">
+            <div class="api-header">
+              <span class="api-method get">GET</span>
+              <span class="api-path">/search</span>
+              <span class="api-auth">Yêu cầu Đăng nhập</span>
+            </div>
+            <div class="api-desc">Tìm kiếm toàn văn các thư mục hoặc tài liệu thuộc sở hữu của người dùng hiện tại thông qua từ khóa tìm kiếm.</div>
+            <table class="params-table">
+              <thead>
+                <tr>
+                  <th>Query Parameter</th>
+                  <th>Kiểu</th>
+                  <th>Bắt buộc</th>
+                  <th>Mô tả</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="param-name">q</td>
+                  <td class="param-type">String</td>
+                  <td class="param-req">Có</td>
+                  <td>Từ khóa tìm kiếm (tìm khớp tên thư mục hoặc tên tệp tài liệu).</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Section: AI Assistant API -->
+      <section id="ai" class="doc-section">
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">🤖</span>
+            <h2 class="section-title">AI Assistant Chat API (Trợ lý ảo AI)</h2>
+          </div>
+
+          <!-- POST /ai/chat -->
+          <div class="api-card">
+            <div class="api-header">
+              <span class="api-method post">POST</span>
+              <span class="api-path">/ai/chat</span>
+              <span class="api-auth">Yêu cầu Đăng nhập</span>
+            </div>
+            <div class="api-desc">Gửi tin nhắn trao đổi hoặc câu hỏi thắc mắc về một tài liệu bài giảng học tập cụ thể. Server sẽ nạp nội dung tài liệu từ AWS S3 và chuyển tiếp làm ngữ cảnh nền (Context Window) cho Google Gemini API để trả về câu trả lời chuẩn xác.</div>
+            <table class="params-table">
+              <thead>
+                <tr>
+                  <th>Trường Body</th>
+                  <th>Kiểu</th>
+                  <th>Bắt buộc</th>
+                  <th>Mô tả</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="param-name">message</td>
+                  <td class="param-type">String</td>
+                  <td class="param-req">Có</td>
+                  <td>Nội dung câu hỏi của sinh viên.</td>
+                </tr>
+                <tr>
+                  <td class="param-name">documentId</td>
+                  <td class="param-type">ObjectId</td>
+                  <td class="param-req">Có</td>
+                  <td>Mã ID tài liệu học tập đang mở đọc để AI có thể đọc hiểu ngữ cảnh tài liệu đó.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer>
+        <p>© 2026 CloudStudy Project. Tài liệu định tuyến & API endpoints.</p>
+      </footer>
+
+    </main>
+
+  </div>
+
+  <!-- Interactive JavaScript -->
+  <script>
+    const sections = document.querySelectorAll('.doc-section');
+    const navItems = {
+      'intro': document.getElementById('menu-intro'),
+      'auth': document.getElementById('menu-auth'),
+      'folders': document.getElementById('menu-folders'),
+      'documents': document.getElementById('menu-documents'),
+      'ai': document.getElementById('menu-ai')
+    };
+
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('progress-bar').style.width = scrolled + '%';
+
+      let currentSection = 'intro';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        if (pageYOffset >= (sectionTop - 150)) {
+          currentSection = section.getAttribute('id');
+        }
+      });
+
+      Object.keys(navItems).forEach(key => {
+        if (key === currentSection) {
+          navItems[key].classList.add('active');
+        } else {
+          navItems[key].classList.remove('active');
+        }
+      });
+    });
+
+    // Theme Toggle Functionality
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const themeText = document.getElementById('theme-text');
+    
+    let currentTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    updateThemeUI(currentTheme);
+
+    themeToggleBtn.addEventListener('click', () => {
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      localStorage.setItem('theme', currentTheme);
+      updateThemeUI(currentTheme);
+    });
+
+    function updateThemeUI(theme) {
+      if (theme === 'dark') {
+        themeIcon.textContent = '☀️';
+        themeText.textContent = 'Giao diện sáng';
+      } else {
+        themeIcon.textContent = '🌙';
+        themeText.textContent = 'Giao diện tối';
+      }
+    }
+  </script>
+</body>
+</html>

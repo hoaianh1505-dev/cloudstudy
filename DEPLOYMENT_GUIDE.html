@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hướng Dẫn Triển Khai Render - CloudStudy</title>
+  
+  <!-- Google Fonts: Inter & Fira Code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Dark Theme (Default) */
+      --bg-primary: #0b0f19;
+      --bg-secondary: #161b26;
+      --bg-tertiary: #0b0f19;
+      --border-color: #2e3545;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-color: #a855f7;
+      --accent-hover: #9333ea;
+      --accent-gradient: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+      --success-color: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.1);
+      --success-border: rgba(16, 185, 129, 0.2);
+      --info-color: #3b82f6;
+      --info-bg: rgba(59, 130, 246, 0.1);
+      --info-border: rgba(59, 130, 246, 0.2);
+      --warning-color: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.1);
+      --warning-border: rgba(245, 158, 11, 0.2);
+      --code-bg: #050811;
+      --sidebar-width: 280px;
+      --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --glow-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #f1f5f9;
+      --border-color: #cbd5e1;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --accent-color: #9333ea;
+      --accent-hover: #7e22ce;
+      --accent-gradient: linear-gradient(135deg, #9333ea 0%, #db2777 100%);
+      --success-color: #059669;
+      --success-bg: rgba(5, 150, 105, 0.06);
+      --success-border: rgba(5, 150, 105, 0.12);
+      --info-color: #1d4ed8;
+      --info-bg: rgba(29, 78, 216, 0.06);
+      --info-border: rgba(29, 78, 216, 0.12);
+      --warning-color: #d97706;
+      --warning-bg: rgba(217, 119, 6, 0.06);
+      --warning-border: rgba(217, 119, 6, 0.12);
+      --code-bg: #f1f5f9;
+      --card-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -4px rgba(0,0,0,0.05);
+      --glow-shadow: 0 4px 20px rgba(147, 51, 234, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      line-height: 1.6;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    #progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background: var(--accent-gradient);
+      width: 0%;
+      z-index: 1000;
+      transition: width 0.1s;
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Navigation */
+    aside {
+      width: var(--sidebar-width);
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow-y: auto;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--accent-gradient);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 10px rgba(168, 85, 247, 0.3);
+    }
+
+    .logo-text {
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.5px;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item a:hover {
+      color: var(--text-main);
+      background-color: var(--bg-tertiary);
+    }
+
+    .nav-item.active a {
+      color: white;
+      background: var(--accent-gradient);
+      box-shadow: var(--glow-shadow);
+    }
+
+    .theme-toggle-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 2rem;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--accent-color);
+      box-shadow: var(--glow-shadow);
+    }
+
+    /* Main Content Area */
+    main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      padding: 3rem 4rem;
+      max-width: 1050px;
+    }
+
+    header {
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .badge-offline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.75rem;
+      background-color: rgba(168, 85, 247, 0.1);
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      color: var(--accent-color);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 50px;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 0.75rem;
+      line-height: 1.2;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 750px;
+    }
+
+    /* Sections and Layout */
+    .doc-section {
+      scroll-margin-top: 2rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .doc-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2.25rem;
+      box-shadow: var(--card-shadow);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .doc-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: var(--accent-gradient);
+    }
+
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.75rem;
+    }
+
+    .section-icon {
+      font-size: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .lead-text {
+      font-size: 1.05rem;
+      color: var(--text-main);
+      margin-bottom: 1.5rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      background-color: var(--code-bg);
+      color: #f472b6;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    /* Key Flow Visuals */
+    .flow-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+
+    .flow-step {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1.25rem;
+      position: relative;
+    }
+
+    .flow-step-num {
+      width: 28px;
+      height: 28px;
+      background: var(--accent-gradient);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .flow-step-content {
+      flex: 1;
+    }
+
+    .flow-step-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .flow-step-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Lists */
+    ul.doc-list {
+      list-style: none;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    ul.doc-list li {
+      position: relative;
+      padding-left: 1.75rem;
+    }
+
+    ul.doc-list li::before {
+      content: "➔";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--accent-color);
+      font-weight: bold;
+    }
+
+    ul.doc-list li strong {
+      color: var(--text-main);
+    }
+
+    /* Alert boxes */
+    .alert-box {
+      border-left: 4px solid;
+      padding: 1.25rem;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .alert-box.info {
+      background-color: var(--info-bg);
+      border-left-color: var(--info-color);
+      border: 1px solid var(--info-border);
+      border-left-width: 4px;
+    }
+
+    .alert-box.success {
+      background-color: var(--success-bg);
+      border-left-color: var(--success-color);
+      border: 1px solid var(--success-border);
+      border-left-width: 4px;
+    }
+
+    .alert-box.warning {
+      background-color: var(--warning-bg);
+      border-left-color: var(--warning-color);
+      border: 1px solid var(--warning-border);
+      border-left-width: 4px;
+    }
+
+    .alert-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .alert-box.info .alert-title { color: var(--info-color); }
+    .alert-box.success .alert-title { color: var(--success-color); }
+    .alert-box.warning .alert-title { color: var(--warning-color); }
+
+    .alert-content {
+      font-size: 0.9rem;
+    }
+
+    /* Code Block Containers */
+    .code-container {
+      position: relative;
+      margin: 1.5rem 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .code-header {
+      background-color: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-lang {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-muted);
+      padding: 0.35rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .copy-btn:hover {
+      color: var(--text-main);
+      border-color: var(--accent-color);
+      background-color: var(--bg-primary);
+    }
+
+    .copy-btn.copied {
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+      background-color: rgba(168, 85, 247, 0.1);
+    }
+
+    pre {
+      margin: 0;
+      padding: 1.25rem;
+      background-color: var(--code-bg);
+      overflow-x: auto;
+    }
+
+    pre code {
+      padding: 0;
+      background-color: transparent;
+      color: #f1f5f9;
+    }
+
+    footer {
+      margin-top: 5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    @media (max-width: 1024px) {
+      .container { flex-direction: column; }
+      aside {
+        width: 100%;
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: 1.5rem;
+        height: auto;
+      }
+      main {
+        margin-left: 0;
+        padding: 2rem 1.5rem;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progress-bar"></div>
+
+  <div class="container">
+    
+    <!-- Sidebar Navigation -->
+    <aside>
+      <div>
+        <div class="logo-container">
+          <div class="logo-icon">C</div>
+          <div class="logo-text">CloudStudy</div>
+        </div>
+        
+        <nav>
+          <ul class="nav-list">
+            <li class="nav-item active" id="menu-intro">
+              <a href="#intro">📖 Tổng Quan</a>
+            </li>
+            <li class="nav-item" id="menu-render-yaml">
+              <a href="#render-yaml">⚙️ Thiết Lập render.yaml</a>
+            </li>
+            <li class="nav-item" id="menu-env-vars">
+              <a href="#env-vars">🔑 Cấu Hình Biến</a>
+            </li>
+            <li class="nav-item" id="menu-steps">
+              <a href="#steps">🚀 Các Bước Triển Khai</a>
+            </li>
+            <li class="nav-item" id="menu-coldstart">
+              <a href="#coldstart">⏱️ Ngăn Chặn Ngủ Đông</a>
+            </li>
+            <li class="nav-item" id="menu-troubleshoot">
+              <a href="#troubleshoot">🛠️ Lỗi Thường Gặp</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <button class="theme-toggle-btn" id="theme-toggle">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Giao diện sáng</span>
+      </button>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main>
+      
+      <!-- Introduction Section -->
+      <section id="intro" class="doc-section">
+        <header>
+          <div class="badge-offline">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-right: 4px;">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Tài Liệu Triển Khai Cloud
+          </div>
+          <h1>Hướng Dẫn Triển Khai Lên Render</h1>
+          <p>Tài liệu hướng dẫn từng bước thiết lập tài khoản, đưa mã nguồn lên GitHub và cấu hình chạy thực tế ứng dụng <strong>CloudStudy</strong> trên đám mây Render.</p>
+        </header>
+
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">☁️</span>
+            <h2 class="section-title">Tại sao lại chọn Render?</h2>
+          </div>
+          <div class="lead-text">
+            <strong>Render</strong> là một nền tảng Cloud Application Hosting hiện đại, hỗ trợ tự động xây dựng và triển khai (CI/CD) ứng dụng Web Service trực tiếp từ các commit trên kho lưu trữ GitHub. Render cung cấp gói dịch vụ miễn phí (Free Tier) phù hợp cho các dự án đồ án học tập và thử nghiệm.
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: render.yaml -->
+      <section id="render-yaml" class="doc-section">
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">⚙️</span>
+            <h2 class="section-title">Cấu hình Tự động bằng render.yaml</h2>
+          </div>
+          
+          <p>Dự án sử dụng cơ chế <strong>Blueprint</strong> của Render thông qua tệp cấu hình <code>render.yaml</code> đặt tại thư mục gốc. Khi liên kết Blueprint, Render sẽ tự động nhận diện và thiết lập các tham số môi trường mà không cần nhập tay từng dòng.</p>
+
+          <div class="code-container">
+            <div class="code-header">
+              <span class="code-lang">Tệp render.yaml gốc</span>
+              <button class="copy-btn" onclick="copyCode('yaml-code', this)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>Sao chép</span>
+              </button>
+            </div>
+            <pre><code id="yaml-code">services:
+  - type: web
+    name: cloud-study-document-manager
+    runtime: node
+    buildCommand: npm install
+    startCommand: node app.js
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: SESSION_SECRET
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: AWS_REGION
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_BUCKET_NAME
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Env Vars -->
+      <section id="env-vars" class="doc-section">
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">🔑</span>
+            <h2 class="section-title">Danh Sách Biến Môi Trường (Environment Variables)</h2>
+          </div>
+          
+          <p>Khi triển khai lên Render, bạn cần cấu hình đầy đủ các biến bảo mật bên dưới để server có thể kết nối với Cơ sở dữ liệu, AWS S3 và Google Gemini:</p>
+
+          <ul class="doc-list" style="margin-top: 1rem;">
+            <li><strong>PORT</strong>: Mặc định là <code>3000</code>.</li>
+            <li><strong>SESSION_SECRET</strong>: Khóa bảo mật ngẫu nhiên dùng để ký và mã hóa cookie phiên đăng nhập của người dùng. (Nên đặt một chuỗi ký tự dài phức tạp).</li>
+            <li><strong>MONGODB_URI</strong>: Chuỗi kết nối kết nối đến cơ sở dữ liệu MongoDB Atlas (ví dụ: <code>mongodb+srv://username:password@cluster...</code>).</li>
+            <li><strong>AWS_REGION</strong>: Vùng lưu trữ của S3 bucket (ví dụ: <code>ap-southeast-1</code>).</li>
+            <li><strong>AWS_ACCESS_KEY_ID</strong>: ID khóa truy cập của tài khoản AWS IAM User có quyền đọc/ghi trên bucket S3.</li>
+            <li><strong>AWS_SECRET_ACCESS_KEY</strong>: Khóa bảo mật tương ứng của IAM User.</li>
+            <li><strong>AWS_BUCKET_NAME</strong>: Tên Bucket S3 được thiết lập private dùng trong dự án.</li>
+            <li><strong>GEMINI_API_KEY</strong>: Khóa API kết nối tới mô hình AI Google Gemini để hỗ trợ tính năng chatbot hỏi đáp.</li>
+          </ul>
+
+          <div class="alert-box warning">
+            <div class="alert-title">⚠️ Cảnh báo Bảo mật:</div>
+            <div class="alert-content">
+              Tuyệt đối **không push tệp .env** chứa mã bảo mật thật lên GitHub. Chỉ dùng tệp <code>.env.example</code> để làm mẫu và khai báo các khóa thực tế trong bảng điều khiển Environment Variables của Render.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Steps -->
+      <section id="steps" class="doc-section">
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">🚀</span>
+            <h2 class="section-title">Quy Trình Triển Khai Từng Bước</h2>
+          </div>
+
+          <div class="flow-container">
+            <div class="flow-step">
+              <div class="flow-step-num">1</div>
+              <div class="flow-step-content">
+                <div class="flow-step-title">Đẩy mã nguồn lên GitHub</div>
+                <div class="flow-step-desc">Tạo một repository riêng tư (Private Repository) trên GitHub và push toàn bộ mã nguồn của dự án lên nhánh <code>main</code>.</div>
+              </div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">2</div>
+              <div class="flow-step-content">
+                <div class="flow-step-title">Đăng nhập Render & Liên kết GitHub</div>
+                <div class="flow-step-desc">Truy cập <a href="https://dashboard.render.com" target="_blank" style="color:var(--accent-color); font-weight:600;">dashboard.render.com</a>, tạo tài khoản và thực hiện liên kết với tài khoản GitHub của bạn.</div>
+              </div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">3</div>
+              <div class="flow-step-content">
+                <div class="flow-step-title">Tạo Web Service mới</div>
+                <div class="flow-step-desc">Nhấp vào nút <strong>New +</strong> -> chọn <strong>Web Service</strong>. Chọn repository <code>CloudStudy</code> từ danh sách liên kết.</div>
+              </div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">4</div>
+              <div class="flow-step-content">
+                <div class="flow-step-title">Cấu hình các tham số</div>
+                <div class="flow-step-desc">
+                  <ul>
+                    <li>Name: <code>cloud-study</code></li>
+                    <li>Runtime: <code>Node</code></li>
+                    <li>Build Command: <code>npm install</code></li>
+                    <li>Start Command: <code>node app.js</code></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">5</div>
+              <div class="flow-step-content">
+                <div class="flow-step-title">Khai báo Biến Môi Trường</div>
+                <div class="flow-step-desc">Nhấp vào thẻ <strong>Environment</strong>, nhấn <strong>Add Environment Variable</strong> và thêm đầy đủ các biến đã liệt kê ở phần trên, sau đó nhấn **Save changes**.</div>
+              </div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">6</div>
+              <div class="flow-step-content">
+                <div class="flow-step-title">Deploy và Kiểm tra Logs</div>
+                <div class="flow-step-desc">Render sẽ tự động kéo code về cài đặt và chạy. Theo dõi bảng điều khiển **Logs** ở bên phải màn hình để xác nhận máy chủ đã khởi tạo thành công ở địa chỉ Web URL được Render cấp.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Cold Start -->
+      <section id="coldstart" class="doc-section">
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">⏱️</span>
+            <h2 class="section-title">Khắc Phục Lỗi Ngủ Đông (Cold Start) của Render Free Tier</h2>
+          </div>
+          
+          <p>Trên gói dịch vụ Free của Render, nếu Web Service không nhận bất kỳ lượt truy cập nào trong vòng <strong>15 phút</strong>, server sẽ tự động chuyển sang chế độ ngủ đông (spin down) để tiết kiệm tài nguyên. Lần truy cập tiếp theo sẽ phải chờ khoảng 30 - 50 giây để server khởi động lại (Cold Start).</p>
+          
+          <p><strong>Giải pháp tối ưu:</strong> Sử dụng dịch vụ ping ngoài miễn phí (ví dụ như <strong>UptimeRobot</strong> hoặc <strong>Cron-job.org</strong>) để tự động gửi HTTP Request ping tới URL website của bạn mỗi 10 - 12 phút. Việc này giúp giữ cho máy chủ luôn thức và phản hồi tức thì khi giảng viên mở kiểm tra.</p>
+
+          <div class="alert-box success">
+            <div class="alert-title">💡 Các bước cài đặt UptimeRobot giữ server hoạt động:</div>
+            <div class="alert-content">
+              <ol style="margin-left: 1.25rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                <li>Đăng ký tài khoản miễn phí tại <a href="https://uptimerobot.com" target="_blank" style="color:var(--success-color); font-weight:600;">uptimerobot.com</a>.</li>
+                <li>Nhấp chọn <strong>Add New Monitor</strong>.</li>
+                <li>Chọn Monitor Type là <strong>HTTP(s)</strong>.</li>
+                <li>Đặt Friendly Name là <code>CloudStudy Live Ping</code>.</li>
+                <li>Điền địa chỉ URL website chạy thực tế được Render cấp (ví dụ: <code>https://cloudstudy.onrender.com/login</code>).</li>
+                <li>Thiết lập tần suất ping (Monitoring Interval) là <strong>Every 10 minutes</strong>.</li>
+                <li>Nhấn <strong>Create Monitor</strong> để hoàn tất.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Troubleshoot -->
+      <section id="troubleshoot" class="doc-section">
+        <div class="doc-card">
+          <div class="section-title-wrap">
+            <span class="section-icon">🛠️</span>
+            <h2 class="section-title">Lỗi Thường Gặp & Cách Khắc Phục</h2>
+          </div>
+
+          <ul class="doc-list">
+            <li>
+              <strong>Lỗi: MONGODB_URI connection timeout / database error</strong>
+              <br><span style="color: var(--text-muted); font-size: 0.9rem;">Nguyên nhân: Do MongoDB Atlas chặn dải IP lạ. Địa chỉ IP của Render server thay đổi liên tục.</span>
+              <br><span style="color: var(--success-color); font-size: 0.9rem;">Cách xử lý: Truy cập vào trang quản trị MongoDB Atlas -> Network Access -> Cài đặt dải IP được phép truy cập là <code>0.0.0.0/0</code> (Cho phép truy cập từ mọi nơi).</span>
+            </li>
+            <li>
+              <strong>Lỗi: AWS S3 InvalidAccessKeyId / SignatureDoesNotMatch</strong>
+              <br><span style="color: var(--text-muted); font-size: 0.9rem;">Nguyên nhân: Sai thông tin Access Key hoặc Secret Key khi sao chép vào môi trường Render.</span>
+              <br><span style="color: var(--success-color); font-size: 0.9rem;">Cách xử lý: Kiểm tra và khai báo lại biến trong phần cấu hình Environment Variables. Chú ý không sao chép dư khoảng trắng ở hai đầu chuỗi.</span>
+            </li>
+            <li>
+              <strong>Lỗi: Node Version Mismatch / Build thất bại</strong>
+              <br><span style="color: var(--text-muted); font-size: 0.9rem;">Nguyên nhân: Render sử dụng phiên bản Node.js cũ hơn mã nguồn yêu cầu.</span>
+              <br><span style="color: var(--success-color); font-size: 0.9rem;">Cách xử lý: Thêm một biến môi trường tên là <code>NODE_VERSION</code> trong phần Environment của Render với giá trị phiên bản Node mong muốn (ví dụ: <code>20.x</code> hoặc <code>22.x</code>).</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer>
+        <p>© 2026 CloudStudy Project. Tài liệu triển khai Web Cloud.</p>
+      </footer>
+
+    </main>
+
+  </div>
+
+  <!-- Interactive JavaScript -->
+  <script>
+    const sections = document.querySelectorAll('.doc-section');
+    const navItems = {
+      'intro': document.getElementById('menu-intro'),
+      'render-yaml': document.getElementById('menu-render-yaml'),
+      'env-vars': document.getElementById('menu-env-vars'),
+      'steps': document.getElementById('menu-steps'),
+      'coldstart': document.getElementById('menu-coldstart'),
+      'troubleshoot': document.getElementById('menu-troubleshoot')
+    };
+
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('progress-bar').style.width = scrolled + '%';
+
+      let currentSection = 'intro';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        if (pageYOffset >= (sectionTop - 150)) {
+          currentSection = section.getAttribute('id');
+        }
+      });
+
+      Object.keys(navItems).forEach(key => {
+        if (key === currentSection) {
+          navItems[key].classList.add('active');
+        } else {
+          navItems[key].classList.remove('active');
+        }
+      });
+    });
+
+    // Theme Toggle Functionality
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const themeText = document.getElementById('theme-text');
+    
+    let currentTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    updateThemeUI(currentTheme);
+
+    themeToggleBtn.addEventListener('click', () => {
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      localStorage.setItem('theme', currentTheme);
+      updateThemeUI(currentTheme);
+    });
+
+    function updateThemeUI(theme) {
+      if (theme === 'dark') {
+        themeIcon.textContent = '☀️';
+        themeText.textContent = 'Giao diện sáng';
+      } else {
+        themeIcon.textContent = '🌙';
+        themeText.textContent = 'Giao diện tối';
+      }
+    }
+
+    // Code Copy Functionality
+    function copyCode(elementId, button) {
+      const codeElement = document.getElementById(elementId);
+      const cleanText = codeElement.innerText;
+      
+      navigator.clipboard.writeText(cleanText).then(() => {
+        const svg = button.querySelector('svg');
+        const textSpan = button.querySelector('span');
+        
+        button.classList.add('copied');
+        textSpan.textContent = 'Đã sao chép!';
+        
+        const originalIcon = svg.innerHTML;
+        svg.innerHTML = '<path d="M20 6L9 17l-5-5"></path>';
+        
+        setTimeout(() => {
+          button.classList.remove('copied');
+          textSpan.textContent = 'Sao chép';
+          svg.innerHTML = originalIcon;
+        }, 2000);
+      }).catch(err => {
+        console.error('Không thể sao chép văn bản: ', err);
+      });
+    }
+  </script>
+</body>
+</html>
