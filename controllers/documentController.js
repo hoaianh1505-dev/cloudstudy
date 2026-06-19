@@ -1,17 +1,6 @@
-import Document from '../models/Document.js';
-import Folder from '../models/Folder.js';
-import SharedLink from '../models/SharedLink.js';
-import * as s3Service from '../services/s3Service.js';
-import { getBreadcrumbs } from '../utils/folderHelper.js';
-
-const formatBytes = (bytes, decimals = 2) => {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-};
+import * as documentService from '../services/documentService.js';
+import Folder from '../models/Folder.js'; // still needed to fetch lists for select menus in view renders
+import { formatBytes } from '../services/dashboardService.js'; // re-use formatBytes
 
 export const getUploadPage = async (req, res) => {
   try {
@@ -31,39 +20,21 @@ export const getUploadPage = async (req, res) => {
 
 export const postUpload = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).render('upload', {
-        title: 'Tải tài liệu lên - Cloud Study',
-        folders: await Folder.find({ owner: req.session.userId }).sort({ name: 1 }).lean(),
-        currentFolderId: req.body.folderId || null,
-        error: 'Vui lòng chọn file hợp lệ để tải lên'
-      });
-    }
-
     const userId = req.session.userId;
     const { folderId } = req.body;
-    const destFolderId = folderId && folderId.trim() !== '' ? folderId : null;
 
-    // Upload to S3
-    const s3Result = await s3Service.uploadFile(req.file.buffer, req.file.originalname, req.file.mimetype);
+    const result = await documentService.uploadDocument(req.file, folderId, userId);
 
-    const doc = new Document({
-      fileName: req.file.originalname,
-      fileType: req.file.mimetype,
-      fileSize: req.file.size,
-      s3Key: s3Result.key,
-      s3Url: s3Result.url,
-      folderId: destFolderId,
-      owner: userId
-    });
-
-    await doc.save();
-
-    const redirectUrl = destFolderId ? `/folder/${destFolderId}` : '/folders';
+    const redirectUrl = result.destFolderId ? `/folder/${result.destFolderId}` : '/folders';
     res.redirect(redirectUrl);
   } catch (error) {
     console.error('Error in postUpload:', error);
-    res.status(500).send('Lỗi khi tải file lên Cloud Storage');
+    res.status(500).render('upload', {
+      title: 'Tải tài liệu lên - Cloud Study',
+      folders: await Folder.find({ owner: req.session.userId }).sort({ name: 1 }).lean(),
+      currentFolderId: req.body.folderId || null,
+      error: error.message || 'Lỗi khi tải file lên Cloud Storage'
+    });
   }
 };
 
@@ -72,35 +43,24 @@ export const getDocumentDetail = async (req, res) => {
     const userId = req.session.userId;
     const docId = req.params.id;
 
-    const doc = await Document.findOne({ _id: docId, owner: userId }).populate('folderId').lean();
-    if (!doc) {
-      return res.status(404).send('Tài liệu không tồn tại');
-    }
-
-    const allFolders = await Folder.find({ owner: userId }).lean();
-    const breadcrumbs = doc.folderId ? getBreadcrumbs(doc.folderId._id, allFolders) : [];
-
-    // Check if there is an active shared link
-    const sharedLink = await SharedLink.findOne({ documentId: docId }).lean();
-    let shareUrl = null;
-    if (sharedLink) {
-      shareUrl = `${req.protocol}://${req.get('host')}/share/${sharedLink.token}`;
-    }
-
-    // Identify if the document is an image (for thumbnail rendering)
-    const isImage = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(doc.fileType);
+    const details = await documentService.getDocumentDetails(
+      docId, 
+      userId, 
+      req.protocol, 
+      req.get('host')
+    );
 
     res.render('document', {
-      title: `${doc.fileName} - Chi tiết`,
-      doc,
-      breadcrumbs,
-      shareUrl,
-      isImage,
+      title: `${details.doc.fileName} - Chi tiết`,
+      doc: details.doc,
+      breadcrumbs: details.breadcrumbs,
+      shareUrl: details.shareUrl,
+      isImage: details.isImage,
       formatBytes
     });
   } catch (error) {
     console.error('Error fetching document detail:', error);
-    res.status(500).send('Lỗi máy chủ');
+    res.status(404).send(error.message || 'Tài liệu không tồn tại');
   }
 };
 
@@ -109,16 +69,11 @@ export const downloadDocument = async (req, res) => {
     const userId = req.session.userId;
     const docId = req.params.id;
 
-    const doc = await Document.findOne({ _id: docId, owner: userId });
-    if (!doc) {
-      return res.status(404).send('Tài liệu không tồn tại');
-    }
-
-    const stream = await s3Service.getFileStream(doc.s3Key);
-    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(doc.fileName)}"`);
-    res.setHeader('Content-Type', doc.fileType);
+    const result = await documentService.getDownloadStream(docId, userId);
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(result.fileName)}"`);
+    res.setHeader('Content-Type', result.fileType);
     
-    stream.pipe(res);
+    result.stream.pipe(res);
   } catch (error) {
     console.error('Error downloading document from S3:', error);
     res.status(500).send('Không thể tải file từ S3 Cloud');
@@ -130,24 +85,12 @@ export const deleteDocument = async (req, res) => {
     const userId = req.session.userId;
     const docId = req.params.id;
 
-    const doc = await Document.findOne({ _id: docId, owner: userId });
-    if (!doc) {
-      return res.status(404).json({ error: 'Tài liệu không tồn tại' });
-    }
-
-    // Delete S3 source file
-    await s3Service.deleteFile(doc.s3Key);
-
-    // Delete sharing tokens
-    await SharedLink.deleteMany({ documentId: docId });
-
-    // Delete metadata
-    await Document.deleteOne({ _id: docId });
+    await documentService.deleteDocument(docId, userId);
 
     res.json({ success: true });
   } catch (error) {
     console.error('Error deleting document:', error);
-    res.status(500).json({ error: 'Lỗi máy chủ khi xóa tài liệu' });
+    res.status(500).json({ error: error.message || 'Lỗi máy chủ khi xóa tài liệu' });
   }
 };
 
@@ -166,17 +109,7 @@ export const search = async (req, res) => {
       });
     }
 
-    const regex = new RegExp(query.trim(), 'i');
-
-    const folders = await Folder.find({
-      owner: userId,
-      name: regex
-    }).lean();
-
-    const documents = await Document.find({
-      owner: userId,
-      fileName: regex
-    }).populate('folderId').lean();
+    const { folders, documents } = await documentService.searchDocumentsAndFolders(query, userId);
 
     res.render('search', {
       title: `Kết quả tìm kiếm cho "${query}"`,
