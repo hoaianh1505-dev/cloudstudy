@@ -9,6 +9,9 @@ export const handleChat = async (req, res) => {
     const userId = req.session.userId;
     const apiKey = process.env.GEMINI_API_KEY;
 
+    console.log(`[AI Chat] Received request. Message: "${message}"`);
+    console.log(`[AI Chat] Params: documentId="${documentId}", shareToken="${shareToken}", userId="${userId}"`);
+
     if (!apiKey || apiKey === 'YOUR_GEMINI_API_KEY' || apiKey.trim() === '') {
       return res.status(400).json({ 
         reply: 'Trợ lý AI chưa được cấu hình khóa API (GEMINI_API_KEY) trong file .env. Vui lòng liên hệ quản trị viên!' 
@@ -42,17 +45,20 @@ Hãy trả lời một cách CỰC KỲ ngắn gọn, súc tích, đi thẳng v�
     if (documentId) {
       // Find document and ensure user owns it
       doc = await Document.findOne({ _id: documentId, owner: userId }).lean();
+      console.log(`[AI Chat] DB Query for documentId="${documentId}" returned:`, doc ? `Found ("${doc.fileName}")` : "Not Found");
     } else if (shareToken) {
       // Find document using share token
       const sharedLink = await SharedLink.findOne({ token: shareToken }).populate('documentId').lean();
       if (sharedLink && sharedLink.documentId) {
         doc = sharedLink.documentId;
       }
+      console.log(`[AI Chat] DB Query for shareToken="${shareToken}" returned:`, doc ? `Found ("${doc.fileName}")` : "Not Found");
     }
 
     if (doc) {
       // Limit to 15MB to prevent memory exhaustion
       if (doc.fileSize > 15 * 1024 * 1024) {
+        console.log(`[AI Chat] File size (${doc.fileSize} bytes) exceeds 15MB limit.`);
         fileContextPrompt = `\n[Lưu ý: Tài liệu "${doc.fileName}" quá lớn (${(doc.fileSize / (1024*1024)).toFixed(1)}MB) để AI có thể đọc trực tiếp. Vui lòng tóm tắt câu hỏi hoặc trích dẫn đoạn cần hỏi.]`;
       } else {
         const mimeType = doc.fileType;
@@ -62,19 +68,24 @@ Hãy trả lời một cách CỰC KỲ ngắn gọn, súc tích, đi thẳng v�
         const isPdf = mimeType === 'application/pdf';
         const isImage = mimeType.startsWith('image/');
 
+        console.log(`[AI Chat] File type analysis: isTextFile=${isTextFile}, isPdf=${isPdf}, isImage=${isImage}, MimeType="${mimeType}"`);
+
         if (isTextFile || isPdf || isImage) {
           try {
+            console.log(`[AI Chat] Fetching file stream from S3 for Key: "${doc.s3Key}"...`);
             const stream = await s3Service.getFileStream(doc.s3Key);
             const chunks = [];
             for await (const chunk of stream) {
               chunks.push(chunk);
             }
             const fileBuffer = Buffer.concat(chunks);
+            console.log(`[AI Chat] Successfully read ${fileBuffer.length} bytes from S3 stream.`);
 
             if (isTextFile) {
               const fileText = fileBuffer.toString('utf-8');
               const truncatedText = fileText.slice(0, 35000); // Truncate to prevent token limit errors
               fileContextPrompt = `\n\n[DƯỚI ĐÂY LÀ NỘI DUNG TỆP TIN "${doc.fileName}"]: \n---\n${truncatedText}\n---\nHãy phân tích và trả lời các câu hỏi dựa trên nội dung tệp này.`;
+              console.log(`[AI Chat] Appended text file content context (${truncatedText.length} chars).`);
             } else if (isPdf || isImage) {
               // Prepare file data in base64 format for multimodal Gemini processing
               filePart = {
@@ -83,12 +94,14 @@ Hãy trả lời một cách CỰC KỲ ngắn gọn, súc tích, đi thẳng v�
                   data: fileBuffer.toString('base64')
                 }
               };
+              console.log(`[AI Chat] Prepared multimodal filePart for Gemini (base64 length: ${filePart.inlineData.data.length}).`);
             }
           } catch (err) {
-            console.error('Error fetching file for AI context:', err);
+            console.error('[AI Chat] Error fetching file for AI context:', err);
             fileContextPrompt = `\n[Lỗi: Không thể tải nội dung tệp "${doc.fileName}" từ S3]`;
           }
         } else {
+          console.log(`[AI Chat] File format "${mimeType}" is not supported for reading.`);
           fileContextPrompt = `\n[Lưu ý: Định dạng của tệp "${doc.fileName}" (${doc.fileType}) chưa được trợ lý AI hỗ trợ đọc trực tiếp lúc này.]`;
         }
       }
@@ -120,6 +133,8 @@ Hãy trả lời một cách CỰC KỲ ngắn gọn, súc tích, đi thẳng v�
       parts: userParts
     });
 
+    console.log(`[AI Chat] Sending request to Gemini API. Payload parts count: ${userParts.length}. Has filePart: ${!!filePart}`);
+
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`,
       {
@@ -138,7 +153,7 @@ Hãy trả lời một cách CỰC KỲ ngắn gọn, súc tích, đi thẳng v�
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Gemini API Error:', errorData);
+      console.error('[AI Chat] Gemini API Error:', errorData);
       return res.status(500).json({ 
         reply: 'Rất tiếc, tôi gặp sự cố khi kết nối tới máy chủ trí tuệ nhân tạo. Vui lòng thử lại sau!' 
       });
@@ -147,9 +162,10 @@ Hãy trả lời một cách CỰC KỲ ngắn gọn, súc tích, đi thẳng v�
     const data = await response.json();
     const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Tôi không nhận được phản hồi phù hợp từ AI.';
 
+    console.log(`[AI Chat] Success! Gemini replied with ${reply.length} characters.`);
     res.json({ reply });
   } catch (error) {
-    console.error('AI Assistant Error:', error);
+    console.error('[AI Chat] AI Assistant Error:', error);
     res.status(500).json({ reply: 'Đã xảy ra lỗi hệ thống khi xử lý câu hỏi của bạn.' });
   }
 };
