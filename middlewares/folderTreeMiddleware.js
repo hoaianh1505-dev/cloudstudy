@@ -4,7 +4,7 @@ import { buildFolderTree, renderFolderTreeHtml } from '../utils/folderHelper.js'
 export default async (req, res, next) => {
   if (req.session && req.session.userId) {
     try {
-      const allFolders = await Folder.find({ owner: req.session.userId }).lean();
+      const allFolders = await Folder.find({ owner: req.session.userId }).sort({ name: 1 }).lean();
       const tree = buildFolderTree(allFolders);
       
       // Determine active folder if applicable

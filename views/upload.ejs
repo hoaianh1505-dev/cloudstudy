@@ -40,7 +40,7 @@
               <label for="folderSelectPage" class="form-label fw-bold text-muted">Chọn thư mục học tập</label>
               <select class="form-select py-2.5" id="folderSelectPage" name="folderId">
                 <option value="">-- Thư mục gốc (Root) --</option>
-                <% folders.forEach(f => { %>
+                <% rawFolders.forEach(f => { %>
                   <option value="<%= f._id %>" <%= currentFolderId && String(currentFolderId) === String(f._id) ? 'selected' : '' %>><%= f.name %></option>
                 <% }) %>
               </select>

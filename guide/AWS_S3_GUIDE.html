@@ -572,6 +572,9 @@
             <li class="nav-item" id="menu-step5">
               <a href="#step5">📝 Bước 5: Thiết lập .env <span class="nav-badge">NodeJS</span></a>
             </li>
+            <li class="nav-item" id="menu-step6">
+              <a href="#step6">🔍 Bước 6: Xem Lại Kho Lưu Trữ <span class="nav-badge">AWS S3</span></a>
+            </li>
           </ul>
         </div>
       </div>
@@ -886,6 +889,96 @@
         </div>
       </section>
 
+      <!-- Step 6: View Storage Bucket -->
+      <section id="step6" class="step-section">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-number">6</div>
+            <h2 class="step-title">Duyệt, quản lý & kiểm tra kho lưu trữ S3 thực tế</h2>
+          </div>
+          
+          <div class="step-body">
+            <p>Sau khi hoàn thành tích hợp, các file được tải lên từ ứng dụng CloudStudy sẽ được lưu trữ trực tiếp trên đám mây AWS. Dưới đây là hướng dẫn chi tiết cách bạn đăng nhập, kiểm tra và thực hiện các thao tác quản trị trên AWS S3 Console.</p>
+            
+            <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.15rem; color: var(--accent-color);">1. Đăng nhập và tìm kiếm Bucket của bạn</h3>
+            <ul class="instruction-list">
+              <li>Mở trình duyệt và truy cập trang quản lý S3: <a href="https://s3.console.aws.amazon.com/s3/buckets" target="_blank" style="color: var(--accent-color); font-weight: 500;">AWS S3 Console Buckets</a>.</li>
+              <li>Đăng nhập bằng tài khoản AWS của bạn (Tài khoản Root hoặc tài khoản IAM User có quyền quản trị S3).</li>
+              <li>Trong danh sách các Bucket hiển thị:
+                <ul>
+                  <li><strong>Tìm kiếm nhanh</strong>: Nhập tên Bucket của bạn (ví dụ: <code>cloudstudy-2026</code>) vào thanh tìm kiếm.</li>
+                  <li><strong>Kiểm tra trạng thái Access</strong>: Đảm bảo cột <strong>Access</strong> hiển thị trạng thái là <span style="color: var(--success-color); font-weight: 600;">"Bucket and objects not public"</span>. Trạng thái này xác nhận cấu hình bảo mật chặn truy cập công cộng ở Bước 1 đang hoạt động hoàn hảo.</li>
+                </ul>
+              </li>
+              <li>Click vào tên Bucket để mở giao diện quản lý chi tiết bên trong.</li>
+            </ul>
+
+            <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.15rem; color: var(--accent-color);">2. Hiểu cấu trúc lưu trữ và Prefix (Thư mục ảo)</h3>
+            <p>AWS S3 sử dụng kiến trúc lưu trữ dạng phẳng (Flat storage structure) thay vì phân cấp thư mục thực tế như trên hệ điều hành máy tính. Tuy nhiên, để tiện quản lý, S3 sử dụng khái niệm <strong>Prefix (tiền tố của file)</strong> để giả lập các thư mục.</p>
+            <ul class="instruction-list">
+              <li>Khi mở Bucket, tại tab <strong>Objects</strong>, bạn sẽ nhìn thấy một thư mục ảo tên là <code>uploads/</code> do ứng dụng Node.js tự động tạo ra khi upload file đầu tiên.</li>
+              <li>Click vào <code>uploads/</code> để xem toàn bộ danh sách file.</li>
+              <li><strong>Cơ chế đặt tên file của hệ thống (Key Name):</strong>
+                <ul>
+                  <li>Ứng dụng CloudStudy lưu file lên S3 dưới dạng: <code>uploads/[timestamp]-[tên-file-đã-chuẩn-hóa][phần-mở-rộng]</code> (Ví dụ: <code>uploads/1781842396866_toan_cao_cap.pdf</code>).</li>
+                  <li><em>Tại sao phải dùng timestamp?</em> Để đảm bảo tên file là độc bản (unique) trên toàn cầu, tránh tình trạng hai người dùng tải lên hai file trùng tên <code>baitap.docx</code> dẫn đến file sau ghi đè lên file trước.</li>
+                  <li><em>Tại sao phải chuẩn hóa?</em> Các ký tự tiếng Việt có dấu, khoảng trắng hoặc ký tự đặc biệt được tự động thay thế bằng dấu gạch dưới (<code>_</code>) để đường dẫn link file không bị lỗi mã hóa URL (URL encoding) khi tải về.</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.15rem; color: var(--accent-color);">3. Cơ chế bảo mật: Sự khác biệt giữa Object URL và Presigned URL</h3>
+            <p>Đây là phần cốt lõi chứng minh tính bảo mật cao của hệ thống quản lý tài liệu CloudStudy:</p>
+            <ul class="instruction-list">
+              <li>Click vào tên một file bất kỳ trong danh sách để mở trang chi tiết Object (Object Properties).</li>
+              <li>Tìm mục <strong>Object URL</strong> (ví dụ: <code>https://cloudstudy-2026.s3.ap-southeast-1.amazonaws.com/uploads/...</code>).</li>
+              <li><strong>Thử nghiệm Object URL trực tiếp:</strong>
+                <ul>
+                  <li>Hãy copy link này và dán vào tab ẩn danh của trình duyệt. Trình duyệt sẽ hiển thị lỗi mã code XML là <code>AccessDenied</code> (Không có quyền truy cập).</li>
+                  <li><em>Lý do:</em> Do Bucket bị chặn công khai hoàn toàn, không ai có thể đoán link hoặc ăn cắp đường dẫn để tải tài liệu từ bên ngoài.</li>
+                </ul>
+              </li>
+              <li><strong>Cơ chế Presigned URL (Được dùng trong ứng dụng):</strong>
+                <ul>
+                  <li>Khi người dùng đăng nhập hợp lệ vào trang web CloudStudy và nhấn nút "Tải xuống" hoặc "Xem tài liệu", server NodeJS của chúng ta sẽ giao tiếp với AWS S3 thông qua Access Key bí mật để sinh ra một <strong>Presigned URL</strong> (Đường dẫn có chữ ký số tạm thời).</li>
+                  <li>Đường dẫn này sẽ chứa thêm các tham số xác thực bảo mật ở đuôi (ví dụ: <code>?X-Amz-Algorithm=...&X-Amz-Credential=...&X-Amz-Date=...&X-Amz-Expires=...</code>).</li>
+                  <li>Link có chữ ký này có thời hạn sử dụng rất ngắn (mặc định là 15 phút hoặc 1 giờ). Hết thời gian này, link tự động vô hiệu hóa, bảo vệ tài liệu tuyệt đối khỏi việc phát tán trái phép.</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.15rem; color: var(--accent-color);">4. Các thao tác quản trị thủ công trên AWS Console</h3>
+            <p>Trong quá trình vận hành hoặc chấm điểm đồ án, bạn có thể cần thao tác trực tiếp với dữ liệu trên AWS Console:</p>
+            <ul class="instruction-list">
+              <li><strong>Tải file xuống an toàn (Download):</strong> Tích chọn ô vuông trước file cần tải ➔ Nhấn nút <strong>Download</strong> ở trên cùng hoặc nút <strong>Download as</strong> để tải trực tiếp file về máy tính mà không bị lỗi chặn quyền truy cập (vì bạn đang thao tác bằng tài khoản quản trị AWS).</li>
+              <li><strong>Xóa file vĩnh viễn (Delete):</strong> Tích chọn file ➔ Nhấn nút <strong>Delete</strong> ➔ Một giao diện cảnh báo hiện ra, bạn cần gõ từ khóa <code>permanently delete</code> vào ô xác nhận để xóa hoàn toàn file khỏi Cloud S3.
+                <div class="alert-box warning" style="margin: 0.5rem 0;">
+                  <div class="alert-title">Lưu ý về đồng bộ Database (MongoDB):</div>
+                  <div class="alert-content">
+                    Nếu bạn xóa một file trực tiếp trên AWS Console, thông tin file đó <strong>vẫn hiển thị</strong> trên trang web CloudStudy. Khi người dùng click tải file đó từ web sẽ gặp lỗi 404/500 do link gọi đến một file không còn tồn tại trên S3. Do đó, hãy ưu tiên thực hiện thao tác xóa file từ giao diện quản lý của trang web CloudStudy để đảm bảo đồng bộ xóa cả trong MongoDB và S3.
+                  </div>
+                </div>
+              </li>
+              <li><strong>Tải file lên thủ công để test (Upload):</strong> Nhấn nút <strong>Upload</strong> trên AWS Console ➔ Kéo thả file của bạn vào và nhấn xác nhận.
+                <div class="alert-box warning" style="margin: 0.5rem 0;">
+                  <div class="alert-title">Lưu ý về luồng dữ liệu đồ án:</div>
+                  <div class="alert-content">
+                    File tải lên thủ công trực tiếp từ AWS Console <strong>sẽ không xuất hiện</strong> trong giao diện ứng dụng CloudStudy. Điều này là hoàn toàn chính xác, vì hệ thống của chúng ta chỉ hiển thị những tài liệu được đăng ký bản ghi (metadata) trong bộ sưu tập <code>documents</code> của MongoDB. File upload thủ công qua console sẽ không có bản ghi tương ứng trong cơ sở dữ liệu.
+                  </div>
+                </div>
+              </li>
+            </ul>
+
+            <div class="alert-box success">
+              <div class="alert-title">💡 MẸO THEO DÕI DUNG LƯỢNG KHO CHỨA:</div>
+              <div class="alert-content">
+                Tại trang chi tiết S3 Bucket, chuyển qua tab <strong>Metrics</strong> để xem biểu đồ thống kê trực quan về tổng số lượng tệp tin (Total objects) và tổng dung lượng lưu trữ (Bucket size) của hệ thống. Bạn cũng có thể cuộn xuống để xem thống kê theo từng Storage Class (Standard, Intelligent-Tiering...) giúp quản lý tối ưu hóa chi phí.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Footer -->
       <footer>
         <p>© 2026 CloudStudy Project. Tài liệu này được tạo và lưu trữ cục bộ để hỗ trợ thiết lập hệ thống.</p>
@@ -904,7 +997,8 @@
       'step2': document.getElementById('menu-step2'),
       'step3': document.getElementById('menu-step3'),
       'step4': document.getElementById('menu-step4'),
-      'step5': document.getElementById('menu-step5')
+      'step5': document.getElementById('menu-step5'),
+      'step6': document.getElementById('menu-step6')
     };
 
     window.addEventListener('scroll', () => {

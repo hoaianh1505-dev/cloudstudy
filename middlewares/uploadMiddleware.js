@@ -10,7 +10,7 @@ const allAllowedExts = [...allowedDocExts, ...allowedImgExts, ...allowedVidExts]
 
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
-  
+
   if (allAllowedExts.includes(ext)) {
     cb(null, true);
   } else {
@@ -22,7 +22,7 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 50 * 1024 * 1024 // 50MB max file size
+    fileSize: 200 * 1024 * 1024 // 200MB max file size
   }
 });
 

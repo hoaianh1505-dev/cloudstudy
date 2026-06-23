@@ -3,22 +3,31 @@ import Document from '../models/Document.js';
 import * as s3Service from './s3Service.js';
 import { getBreadcrumbs } from '../utils/folderHelper.js';
 
-export const getFoldersList = async (userId) => {
-  const subfolders = await Folder.find({ parentFolder: null, owner: userId }).sort({ name: 1 }).lean();
+export const getFoldersList = async (userId, rawFolders) => {
+  const subfolders = rawFolders && Array.isArray(rawFolders)
+    ? rawFolders.filter(f => !f.parentFolder)
+    : await Folder.find({ parentFolder: null, owner: userId }).sort({ name: 1 }).lean();
   const documents = await Document.find({ folderId: null, owner: userId }).sort({ uploadedAt: -1 }).lean();
   return { subfolders, documents };
 };
 
-export const getFolderDetails = async (folderId, userId) => {
-  const currentFolder = await Folder.findOne({ _id: folderId, owner: userId });
+export const getFolderDetails = async (folderId, userId, rawFolders) => {
+  let currentFolder;
+  if (rawFolders && Array.isArray(rawFolders)) {
+    currentFolder = rawFolders.find(f => String(f._id) === String(folderId));
+  } else {
+    currentFolder = await Folder.findOne({ _id: folderId, owner: userId });
+  }
+
   if (!currentFolder) {
     throw new Error('Thư mục không tồn tại hoặc bạn không có quyền truy cập.');
   }
 
-  const allFolders = await Folder.find({ owner: userId }).lean();
-  const breadcrumbs = getBreadcrumbs(folderId, allFolders);
+  const breadcrumbs = getBreadcrumbs(folderId, rawFolders || await Folder.find({ owner: userId }).lean());
 
-  const subfolders = await Folder.find({ parentFolder: folderId, owner: userId }).sort({ name: 1 }).lean();
+  const subfolders = rawFolders && Array.isArray(rawFolders)
+    ? rawFolders.filter(f => String(f.parentFolder) === String(folderId))
+    : await Folder.find({ parentFolder: folderId, owner: userId }).sort({ name: 1 }).lean();
   const documents = await Document.find({ folderId, owner: userId }).sort({ uploadedAt: -1 }).lean();
 
   return {

@@ -4,7 +4,7 @@ import { formatBytes } from '../services/dashboardService.js'; // Re-use formatB
 export const getFolders = async (req, res) => {
   try {
     const userId = req.session.userId;
-    const { subfolders, documents } = await folderService.getFoldersList(userId);
+    const { subfolders, documents } = await folderService.getFoldersList(userId, res.locals.rawFolders);
 
     res.render('folders', {
       title: 'Tất cả tài liệu - Cloud Study',
@@ -27,7 +27,7 @@ export const getFolderDetail = async (req, res) => {
     const userId = req.session.userId;
     const folderId = req.params.id;
 
-    const details = await folderService.getFolderDetails(folderId, userId);
+    const details = await folderService.getFolderDetails(folderId, userId, res.locals.rawFolders);
 
     res.render('folder', {
       title: `${details.currentFolder.name} - Cloud Study`,

@@ -1,21 +1,12 @@
 import * as documentService from '../services/documentService.js';
-import Folder from '../models/Folder.js'; // still needed to fetch lists for select menus in view renders
 import { formatBytes } from '../services/dashboardService.js'; // re-use formatBytes
 
-export const getUploadPage = async (req, res) => {
-  try {
-    const userId = req.session.userId;
-    const folders = await Folder.find({ owner: userId }).sort({ name: 1 }).lean();
-    res.render('upload', {
-      title: 'Tải tài liệu lên - Cloud Study',
-      folders,
-      currentFolderId: req.query.folderId || null,
-      error: null
-    });
-  } catch (error) {
-    console.error('Error fetching folders for upload page:', error);
-    res.status(500).send('Lỗi máy chủ');
-  }
+export const getUploadPage = (req, res) => {
+  res.render('upload', {
+    title: 'Tải tài liệu lên - Cloud Study',
+    currentFolderId: req.query.folderId || null,
+    error: null
+  });
 };
 
 export const postUpload = async (req, res) => {
@@ -31,7 +22,6 @@ export const postUpload = async (req, res) => {
     console.error('Error in postUpload:', error);
     res.status(500).render('upload', {
       title: 'Tải tài liệu lên - Cloud Study',
-      folders: await Folder.find({ owner: req.session.userId }).sort({ name: 1 }).lean(),
       currentFolderId: req.body.folderId || null,
       error: error.message || 'Lỗi khi tải file lên Cloud Storage'
     });
