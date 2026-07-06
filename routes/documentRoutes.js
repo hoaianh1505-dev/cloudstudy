@@ -12,5 +12,6 @@ router.get('/document/:id', isAuthenticated, folderTreeMiddleware, documentContr
 router.get('/document/:id/download', isAuthenticated, documentController.downloadDocument);
 router.delete('/document/:id', isAuthenticated, documentController.deleteDocument);
 router.get('/search', isAuthenticated, folderTreeMiddleware, documentController.search);
+router.get('/documents/api/list', isAuthenticated, documentController.apiListDocuments);
 
 export default router;

@@ -332,6 +332,55 @@ function updateThemeIcon(theme) {
 // --- AI ASSISTANT CHAT HANDLERS ---
 let aiChatHistory = [];
 
+function formatBytesClient(bytes, decimals = 2) {
+  if (!+bytes) return '0 Bytes';
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+}
+
+async function loadAiDocuments() {
+  const select = document.getElementById('aiDocSelect');
+  if (!select) return;
+
+  const currentValue = select.value;
+  
+  try {
+    const response = await fetch('/documents/api/list');
+    if (!response.ok) return;
+    const documents = await response.json();
+    
+    // Giữ nguyên tùy chọn mặc định hoặc tệp đang chọn
+    select.innerHTML = '<option value="">-- Chọn tài liệu để AI đọc --</option>';
+    documents.forEach(doc => {
+      const option = document.createElement('option');
+      option.value = doc._id;
+      option.textContent = `${doc.fileName} (${formatBytesClient(doc.fileSize)})`;
+      if (doc._id === currentValue) {
+        option.selected = true;
+      }
+      select.appendChild(option);
+    });
+  } catch (err) {
+    console.error('Error loading documents for AI selector:', err);
+  }
+}
+
+function toggleAiDocSelect() {
+  const checkbox = document.getElementById('aiReadDocCheckbox');
+  const container = document.getElementById('aiDocSelectContainer');
+  if (checkbox && container) {
+    if (checkbox.checked) {
+      container.classList.remove('d-none');
+      loadAiDocuments();
+    } else {
+      container.classList.add('d-none');
+    }
+  }
+}
+
 function toggleAiChat() {
   const chatWindow = document.getElementById('aiChatWindow');
   if (chatWindow) {
@@ -339,13 +388,20 @@ function toggleAiChat() {
     if (!chatWindow.classList.contains('d-none')) {
       const input = document.getElementById('aiChatInput');
       if (input) input.focus();
+      
+      const checkbox = document.getElementById('aiReadDocCheckbox');
+      if (checkbox && checkbox.checked) {
+        loadAiDocuments();
+      }
     }
   }
 }
 
 function parseMarkdownToHtml(text) {
   // Bold replacer
-  let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  let html = text.replace(/\*\*(.*?)\*\//g, '<strong>$1</strong>');
+  // Handle markdown bold closing edge cases
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   // Newlines replacer
   html = html.replace(/\n/g, '<br>');
   // Bullet point replacer
@@ -387,12 +443,12 @@ async function sendAiMessage(e) {
   chatBody.scrollTop = chatBody.scrollHeight;
 
   const aiReadDocCheckbox = document.getElementById('aiReadDocCheckbox');
-  const aiDocIdInput = document.getElementById('aiDocId');
+  const aiDocSelect = document.getElementById('aiDocSelect');
 
   let docId = null;
 
   if (aiReadDocCheckbox && aiReadDocCheckbox.checked) {
-    if (aiDocIdInput) docId = aiDocIdInput.value;
+    if (aiDocSelect) docId = aiDocSelect.value || null;
   }
 
   try {

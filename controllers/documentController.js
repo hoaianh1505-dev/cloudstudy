@@ -107,3 +107,15 @@ export const search = async (req, res) => {
     res.status(500).send('Lỗi máy chủ khi tìm kiếm');
   }
 };
+
+export const apiListDocuments = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const documents = await documentService.getUserDocuments(userId);
+    res.json(documents);
+  } catch (error) {
+    console.error('Error in apiListDocuments:', error);
+    res.status(500).json({ error: 'Lỗi máy chủ khi lấy danh sách tài liệu' });
+  }
+};
+

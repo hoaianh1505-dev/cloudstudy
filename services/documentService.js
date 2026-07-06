@@ -88,3 +88,8 @@ export const searchDocumentsAndFolders = async (query, userId) => {
 
   return { folders, documents };
 };
+
+export const getUserDocuments = async (userId) => {
+  return await Document.find({ owner: userId }).sort({ uploadedAt: -1 }).lean();
+};
+
