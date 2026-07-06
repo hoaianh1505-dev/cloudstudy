@@ -1,189 +1,160 @@
-Hãy đóng vai trò là một chuyên gia thiết kế slide thuyết trình (Presentation Designer) chuyên nghiệp và một kỹ sư giải pháp đám mây (Cloud Solutions Architect) chuyên sâu về AWS. Hãy tạo cho tôi một bộ slide thuyết trình chi tiết gồm 20 slide bằng tiếng Việt về dự án "Kiến trúc Lưu trữ và Tải truyền Tài liệu Học tập sử dụng dịch vụ AWS S3 Cloud Storage" (Tập trung vào Kiến trúc, Sơ đồ luồng và Demo giao diện, không đi sâu vào chi tiết dòng code).
+Hãy đóng vai trò là một chuyên gia thiết kế slide thuyết trình (Presentation Designer) chuyên nghiệp và một kỹ sư giải pháp đám mây (Cloud Solutions Architect) chuyên sâu về AWS. Hãy tạo cho tôi một bộ slide thuyết trình chi tiết gồm 18 slide bằng tiếng Việt về dự án "Kiến trúc Lưu trữ và Tải truyền Tài liệu Học tập sử dụng dịch vụ AWS S3 Cloud Storage" (Lấy việc giới thiệu các tính năng nghiệp vụ và giao diện demo làm khung sườn chính, kết hợp giải thích cơ chế lưu trữ phân tách dữ liệu nhị phân trên AWS S3 và metadata trên MongoDB Atlas, đồng thời đề xuất các giải pháp lưu trữ đột phá ưu việt, không đi sâu vào chi tiết dòng code lập trình).
 
 Yêu cầu về phong cách thiết kế & Visual:
 1. Chủ đề/Theme: Điện toán đám mây (Cloud Computing), lưu trữ đám mây (AWS S3) và giao diện trực quan hóa dữ liệu.
-2. Tông màu: Dark Mode hiện đại (Nền tối đen carbon/xám đậm, các chi tiết làm điểm nhấn dùng màu Neon Cyan/Teal đại diện cho AWS S3 và Neon Purple để tạo hiệu ứng Glassmorphism cao cấp).
+2. Tông màu: Dark Mode hiện đại (Nền tối đen carbon/xám đậm, các chi tiết làm điểm nhấn dùng màu Neon Cyan/Teal đại diện cho AWS S3 và Neon Purple đại diện cho MongoDB Atlas để tạo hiệu ứng Glassmorphism cao cấp).
 3. Font chữ: Không chân hiện đại (ví dụ: Inter, Montserrat hoặc Outfit), nét mảnh và rõ ràng.
 4. Nguyên tắc trình bày: Trực quan hóa tối đa bằng sơ đồ luồng (Flowchart), bảng so sánh, ảnh chụp màn hình ứng dụng thực tế hoặc biểu tượng (Icons) của AWS, hạn chế viết nhiều chữ dài dòng trên slide.
 
-Dưới đây là nội dung chi tiết của 20 slide (bao gồm Tiêu đề, các Bullet-point hiển thị chính trên slide và Gợi ý thiết kế visual):
+Dưới đây là nội dung chi tiết của 18 slide (bao gồm Tiêu đề, các Bullet-point hiển thị chính trên slide và Gợi ý thiết kế visual):
 
 ---
 
 ### Slide 1: Trang bìa (Title Slide)
-* **Tiêu đề chính**: AWS S3 STORAGE ARCHITECTURE
+* **Tiêu đề chính**: CLOUD STUDY - AWS S3 STORAGE
 * **Tiêu đề phụ**: Thiết kế Kiến trúc Lưu trữ & Tải truyền Dữ liệu An toàn sử dụng dịch vụ AWS S3 Cloud Storage
 * **Nội dung hiển thị**:
-  * Sinh viên thực hiện: Đỗ Hoài Anh
-  * Kiến trúc cốt lõi: AWS S3 Cloud Storage, Secure Stream Proxy, IAM Policy, Private S3 Bucket, Dynamic Storage Statistics
+  * Sinh viên thực hiện: Đỗ Hoài Anh
+  * Kiến trúc cốt lõi: AWS S3 Cloud Storage, Secure Stream Proxy, IAM Policy, Private S3 Bucket (`cloudstudy-2026`), AI Study Assistant
 * **Ý tưởng thiết kế**: Biểu tượng AWS S3 (hộp màu cam/cyan đặc trưng của Amazon Web Services) đặt ở trung tâm, kết nối xung quanh bằng các luồng dữ liệu dạng lưới neon phát sáng trên nền tối.
 
 ### Slide 2: Đặt vấn đề - Giới hạn của lưu trữ máy chủ cục bộ (Disk Storage Limits)
 * **Tiêu đề**: Thách Thức Trong Việc Lưu Trữ Tài Liệu Trên Máy Chủ Cục Bộ
 * **Nội dung hiển thị**:
-  * **Bộ nhớ hữu hạn**: Ổ cứng SSD của máy chủ chạy ứng dụng sẽ bị quá tải nhanh chóng khi hàng trăm sinh viên tải lên lượng lớn tài liệu PDF.
-  * **Rủi ro mất dữ liệu**: Máy chủ ảo trên Render sử dụng Ephemeral Storage (ổ đĩa tạm thời) - dữ liệu tự động bị xóa sạch mỗi lần reboot/deploy.
-  * **Nghẽn băng thông server**: Khi nhiều người tải file lớn đồng thời, CPU và đường truyền của server chính sẽ bị nghẽn làm gián đoạn hệ thống.
+  * **Bộ nhớ hữu hạn**: Ổ cứng SSD của máy chủ chạy ứng dụng sẽ bị quá tải nhanh chóng khi sinh viên tải lên lượng lớn tài liệu PDF và video.
+  * **Rủi ro mất dữ liệu**: Máy chủ ảo trên Render sử dụng Ephemeral Storage (ổ đĩa tạm thời) - dữ liệu tự động bị xóa sạch mỗi lần reboot/deploy.
+  * **Nghẽn băng thông server**: Khi nhiều người tải file lớn đồng thời, CPU và đường truyền của server chính sẽ bị nghẽn làm gián đoạn hệ thống.
 * **Ý tưởng thiết kế**: Sơ đồ một máy chủ cục bộ bị đầy bộ nhớ (vạch đỏ cảnh báo 99% Full) so sánh với biểu tượng đám mây lưu trữ rộng mở.
 
-### Slide 3: Tổng quan giải pháp - Kiến trúc tích hợp AWS S3
+### Slide 3: Tổng quan giải pháp - Kiến trúc tích hợp AWS S3 & MongoDB
 * **Tiêu đề**: Giải Pháp Kiến Trúc Tách Biệt Máy Chủ & Lưu Trữ Đám Mây
 * **Nội dung hiển thị**:
-  * **Máy chủ ứng dụng (Stateless)**: Chỉ xử lý logic nghiệp vụ và định tuyến yêu cầu, không lưu file vật lý.
-  * **Hạ tầng lưu trữ (AWS S3)**: Đảm nhận 100% nhiệm vụ lưu giữ và truyền tải tệp tĩnh gốc.
-  * **Cơ sở dữ liệu (MongoDB)**: Chỉ lưu trữ thông tin liên kết (metadata) và định danh tệp từ S3.
+  * **Máy chủ ứng dụng (Stateless)**: NodeJS Server chỉ xử lý logic nghiệp vụ và định tuyến yêu cầu, không lưu file vật lý.
+  * **Hạ tầng lưu trữ (AWS S3)**: Đảm nhận 100% nhiệm vụ lưu giữ và truyền tải tệp tĩnh gốc nhị phân.
+  * **Cơ sở dữ liệu (MongoDB)**: Chỉ lưu trữ thông tin liên kết (metadata) siêu nhẹ từ S3.
 * **Ý tưởng thiết kế**: Sơ đồ 3 thành phần chính: Web Server NodeJS <---> MongoDB Atlas (lưu metadata) <---> AWS S3 (lưu file thô). Đặt file ảnh "multi_cloud_architecture_visual.png" làm hình minh họa chính cho slide này.
 
-### Slide 4: Khái niệm lưu trữ đối tượng (Object Storage Concept)
-* **Tiêu đề**: Hiểu Về Cơ Chế Lưu Trữ Đối Tượng (AWS S3 Object Storage)
+### Slide 4: Tổng quan hệ sinh thái tính năng của ứng dụng (Core Features Ecosystem)
+* **Tiêu đề**: Hệ Sinh Thái Tính Năng Của Cloud Study
 * **Nội dung hiển thị**:
-  * **Flat Namespace**: Không tổ chức thư mục phân cấp vật lý phức tạp, quản lý file dạng danh sách phẳng các đối tượng (Objects).
-  * **Cấu trúc đối tượng**: Mỗi Object gồm 3 phần:
-    * **Data (Key/Value)**: Dữ liệu nhị phân của tệp.
-    * **Metadata**: Thuộc tính tệp (Size, Content-Type, ngày tạo).
-  * **Flat Namespace**: Không tổ chức thư mục phân cấp vật lý phức tạp, quản lý file dạng danh sách phẳng các đối tượng (Objects).
-  * **Cấu trúc đối tượng**: Mỗi Object gồm 3 phần:
-    * **Data (Key/Value)**: Dữ liệu nhị phân của tệp.
-    * **Metadata**: Thuộc tính tệp (Size, Content-Type, ngày tạo).
-    * **Key**: Khóa định danh duy nhất (ví dụ: `documents/168892-lecture.pdf`).
-* **Ý tưởng thiết kế**: Sơ đồ mô phỏng một "Object" trên AWS S3 chứa các thuộc tính trực quan như Key, Metadata và Binary Data.
+  * **Bảo mật phiên làm việc**: Đăng nhập, đăng ký và bảo vệ tài khoản bằng Session Cookie.
+  * **Dashboard thống kê**: Trực quan hóa tài nguyên lưu trữ đám mây thực tế.
+  * **Quản lý thư mục**: Sắp xếp tài liệu học tập theo phân cấp môn học khoa học.
+  * **Lưu trữ & Truyền dữ liệu**: Tải lên an toàn, Stream Proxy tải xuống, đọc PDF trực tuyến.
+  * **Tương tác thông minh**: Tìm kiếm tài liệu và thảo luận cùng Trợ lý ảo AI.
+* **Ý tưởng thiết kế**: Sơ đồ lưới 6 khối biểu tượng tượng trưng cho các nhóm tính năng nghiệp vụ của ứng dụng.
 
-### Slide 5: Tại sao chọn dịch vụ AWS S3?
-* **Tiêu đề**: Các Chỉ Số Vượt Trội Của AWS S3 Cloud Storage
+### Slide 5: Tính năng 1 - Hệ thống Xác thực & Cách ly dữ liệu người dùng
+* **Tiêu đề**: Xác Thực Phiên Làm Việc & Bảo Mật Dữ Liệu Cá Nhân
 * **Nội dung hiển thị**:
-  * **Độ bền dữ liệu cực cao (Durability)**: Đạt mức `99.999999999%` (11 con số 9), tự động nhân bản dữ liệu qua tối thiểu 3 Datacenter vật lý trong cùng Region `ap-southeast-2` (Sydney).
-  * **Khả năng tự động co giãn (Scalability)**: Tự động mở rộng dung lượng từ vài KB lên hàng Petabyte mà không cần cấu hình phần cứng.
-  * **Tối ưu chi phí đám mây**: Chi phí cực rẻ và có sẵn gói miễn phí 5GB cho nhà phát triển thử nghiệm.
-* **Ý tưởng thiết kế**: Đồ họa thể hiện biểu tượng AWS S3 cùng 3 mũi tên tỏa ra các chỉ số: 11 số 9 bền vững, Region Sydney, Tự động scale, Chi phí tối ưu.
+  * **Mã hóa mật khẩu**: Sử dụng thuật toán băm `bcryptjs` để bảo mật mật khẩu lưu trong cơ sở dữ liệu.
+  * **Signed Cookies**: Server gửi về trình duyệt một Cookie chứa ID Session đã được ký mật mã chống giả mạo bằng khóa bí mật.
+  * **Cách ly tài nguyên**: Bộ lọc Middleware đảm bảo sinh viên chỉ truy cập được tài liệu của riêng mình.
+* **Ý tưởng thiết kế**: Đồ họa mô tả luồng xác thực: Đăng nhập -> Sinh Session -> Ký Cookie -> Trả về Client -> Xác thực thành công truy cập tài nguyên.
 
-### Slide 6: Cấu hình Private Bucket & Cơ chế bảo mật dữ liệu
-* **Tiêu đề**: Thiết Lập Bảo Mật S3 Bucket Private hoàn toàn
+### Slide 6: Tính năng 2 - Dashboard tổng quan & Thống kê lưu trữ thời gian thực
+* **Tiêu đề**: Giao Diện Dashboard Thống Kê Lưu Trữ Cloud
 * **Nội dung hiển thị**:
-  * **Block Public Access**: Kích hoạt tính năng khóa toàn diện mọi quyền truy cập công khai từ bên ngoài Internet.
-  * **Ngăn chặn Hotlinking**: Ngăn chặn người dùng trái phép lấy link trực tiếp từ S3 để tải lậu hoặc dùng ké băng thông gây phát sinh chi phí.
-  * **Quyền truy cập duy nhất**: Chỉ cho phép các request được xác thực và ký bởi API Keys từ Server Node.js đi qua.
-* **Ý tưởng thiết kế**: Sơ đồ thể hiện một "bức tường lửa" bao quanh AWS S3 Bucket, các truy cập trực tiếp từ Internet bị chặn, chỉ chấp nhận truy cập đi qua cổng Web Server.
+  * **Đếm thời gian thực**: Tự động đếm tổng số thư mục và số lượng file tài liệu đang lưu trên S3.
+  * **Biểu thị phần trăm (Capacity Graph)**: Biểu đồ thanh tiến trình hiển thị tỷ lệ dung lượng đã sử dụng trên tổng định mức Cloud cấp phát.
+  * **Quy đổi tự động (Dynamic Bytes)**: Sử dụng thuật toán tự động quy đổi kích thước file thô từ Bytes sang các đơn vị thân thiện (KB, MB, GB).
+* **Ý tưởng thiết kế**: Ảnh chụp màn hình Dashboard EJS thực tế với hiệu ứng Glassmorphism kính mờ sang trọng, nổi bật là biểu đồ dung lượng lưu trữ đám mây.
 
-### Slide 7: Cơ chế phân quyền AWS IAM (Identity and Access Management)
-* **Tiêu đề**: Phân Quyền Bảo Mật Bằng AWS IAM
+### Slide 7: Tính năng 3 - Không gian quản lý tài liệu theo thư mục phân cấp
+* **Tiêu đề**: Tổ Chức Không Gian Thư Mục Học Tập Ngăn Nắp
 * **Nội dung hiển thị**:
-  * **AWS Root Account**: Chỉ sử dụng để quản lý tài khoản, tuyệt đối không dùng Root credentials trong mã nguồn.
-  * **IAM User chuyên dụng**: Tạo một User con riêng biệt `cloudstudy-dev-new` chỉ phục vụ việc chạy mã nguồn.
-  * **Programmatic Access (Truy cập lập trình)**: Giao tiếp bảo mật với S3 thông qua cặp khóa:
-    * `AWS_ACCESS_KEY_ID`: Mã nhận diện tài khoản.
-    * `AWS_SECRET_ACCESS_KEY`: Khóa chữ ký mật mã.
-* **Ý tưởng thiết kế**: Sơ đồ phân cấp: AWS Root User -> AWS IAM Console -> Tạo IAM User con -> Cấp phát Access Keys.
+  * **Không gian phân cấp**: Hỗ trợ tạo cấu trúc thư mục học tập lồng nhau (Năm học > Học kỳ > Môn học).
+  * **Thanh Breadcrumb điều hướng**: Tự động hiển thị đường dẫn thư mục hiện tại để sinh viên dễ dàng chuyển đổi nhanh.
+  * ** AJAX Rename**: Hỗ trợ đổi tên thư mục nhanh chóng ngay trên giao diện web bằng AJAX.
+* **Ý tưởng thiết kế**: Ảnh chụp giao diện quản lý thư mục môn học thực tế, làm nổi bật cấu trúc liên kết và thanh Breadcrumb dẫn đường.
 
-### Slide 8: Nguyên lý Đặc quyền tối thiểu (Least Privilege Policy)
-* **Tiêu đề**: Áp Dụng Chính Sách Đặc Quyền Tối Thiểu
-* **Nội dung hiển thị**:
-  * **Giới hạn hành động (Actions Limit)**: IAM User chỉ được cấp các quyền thiết yếu: `s3:PutObject` (Tải lên), `s3:GetObject` (Tải xuống), `s3:DeleteObject` (Xóa).
-  * **Giới hạn tài nguyên (Resource Limit)**: Chỉ cho phép thao tác trên duy nhất S3 Bucket của hệ thống (`cloudstudy-2026`).
-  * **Bảo mật**: Nếu rò rỉ Access Keys, kẻ xấu cũng không có quyền can thiệp vào các dịch vụ AWS khác trong hệ thống.
-* **Ý tưởng thiết kế**: Sơ đồ một chiếc khóa bảo mật có nhãn "IAM Policy", chỉ mở được đúng chiếc hộp S3 Bucket `cloudstudy-2026` chỉ định, các hộp tài nguyên khác bị khóa chặt.
-
-### Slide 9: API Credentials Security & Biến môi trường đám mây
-* **Tiêu đề**: Quản Lý Cấu Hỉnh Kết Nối AWS S3 An Toàn
-* **Nội dung hiển thị**:
-  * **Loại bỏ Hardcode**: Tuyệt đối không viết trực tiếp Access Keys vào mã nguồn.
-  * **Biến môi trường (.env)**: Sử dụng các biến `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_BUCKET_NAME`, và `AWS_REGION`.
-  * **Bảo mật Cloud Dashboard**: Khai báo biến trực tiếp trên PaaS (Render) Web Dashboard để tiêm (inject) vào runtime khi server chạy.
-* **Ý tưởng thiết kế**: Mockup thể hiện file `.env` cục bộ chứa cấu hình AWS và trang Dashboard quản lý cấu hình của Render Cloud.
-
-### Slide 10: Quy trình Tải tệp lên AWS S3 (Secure Upload Data Flow)
+### Slide 8: Tính năng 4 - Quy trình Tải tài liệu lên AWS S3 (Secure Upload)
 * **Tiêu đề**: Luồng Tải Lên Tài Liệu Không Lưu File Tạm
 * **Nội dung hiển thị**:
-  * **Client gửi yêu cầu**: Trình duyệt gửi file thông qua Multipart Form-data.
   * **Memory Storage (Multer)**: NodeJS Server chặn file bằng Middleware Multer, lưu tệp tạm thời dưới dạng Buffer trong RAM.
   * **Đẩy trực tiếp lên S3**: Server lập tức gọi AWS SDK v3 chuyển dữ liệu Buffer này lên S3.
   * **Lợi ích**: Không ghi file tạm xuống đĩa cứng server, giảm thiểu Disk I/O, tăng tốc độ xử lý upload tệp.
 * **Ý tưởng thiết kế**: Sơ đồ luồng upload: Browser -> [Multer (RAM Buffer)] -> [NodeJS Server] -> (AWS SDK) -> AWS S3. Không có bước ghi đĩa cứng cục bộ (Local Disk).
 
-### Slide 11: Demo giao diện tải tài liệu lên (Upload Document UI Demo)
+### Slide 9: Demo giao diện tải tài liệu lên (Upload Document UI Demo)
 * **Tiêu đề**: Demo Trực Quan Giao Diện Tải Tài Liệu Lên Cloud
 * **Nội dung hiển thị**:
   * **Khu vực kéo thả (Drag and Drop)**: Hỗ trợ người dùng kéo thả file hoặc chọn file từ máy tính dễ dàng.
   * **Thanh tiến trình trực quan (Upload Progress)**: Hiển thị tiến trình đẩy file lên cloud theo thời gian thực (Real-time).
   * **Thông báo tức thì**: Phản hồi thành công ngay khi S3 xác nhận đã nhận file, tự động làm mới danh sách tài liệu.
-* **Ý tưởng thiết kế**: Ảnh chụp màn hình thật hoặc bản vẽ UI của trang Upload tài liệu với nút Drag-and-Drop và thanh tiến trình phần trăm màu xanh ngọc.
+* **Ý tưởng thiết kế**: Ảnh chụp giao diện UI trang tải file lên với khu vực kéo thả viền đứt nét nổi bật và hiệu ứng thanh tiến trình màu xanh ngọc.
 
-### Slide 12: Luồng tải xuống an toàn (Secure S3 Stream Proxy Flow)
-* **Tiêu đề**: Kiến Trúc Download Tệp An Toàn Bằng NodeJS Proxy
+### Slide 10: Bộ lọc kiểm soát định dạng & Giới hạn dung lượng tệp
+* **Tiêu đề**: Bộ Lọc Kiểm Soát Tài Nguyên File Tải Lên Đám Mây
 * **Nội dung hiển thị**:
-  * **Không để lộ S3 URL**: Trình duyệt người dùng chỉ thấy liên kết trung gian của Web Server (Ví dụ: `/documents/download/:id`).
-  * **Yêu cầu an toàn**: Web Server NodeJS đại diện người dùng kết nối bằng Access Key để kéo dữ liệu nhị phân từ S3.
-  * **Truyền dẫn dữ liệu dạng Luồng (Stream)**: Đọc luồng dữ liệu từ S3 và pipe trực tiếp về client.
-  * **Kết quả**: S3 URL gốc được ẩn hoàn toàn, bảo mật tuyệt đối đường dẫn lưu trữ đám mây.
-* **Ý tưởng thiết kế**: Đặt file ảnh sơ đồ luồng tải xuống "s3_architecture_diagram.png" (hoặc "s3_visual_architecture_1782834328077.png") làm hình minh họa chính cho slide này.
+  * **Giới hạn dung lượng**: Cấu hình bộ lọc giới hạn kích thước tối đa 10MB cho mỗi tệp tải lên để tiết kiệm tài nguyên S3.
+  * **Bộ lọc định dạng (File Filter)**: Cho phép các định dạng học tập an toàn:
+    * Tài liệu & Văn bản: PDF, DOCX, PPTX, XLSX, ZIP, TXT, MD.
+    * Hình ảnh & Video: JPG, JPEG, PNG, WEBP, MP4, MKV, AVI, MOV.
+  * **Bảo mật**: Chặn hoàn toàn file thực thi nguy hiểm (như `.exe`, `.bat`, `.js`) để bảo vệ hạ tầng server.
+* **Ý tưởng thiết kế**: Sơ đồ khối lọc file đầu vào: Client gửi file -> Kiểm tra dung lượng (<10MB?) -> Kiểm tra định dạng -> Hợp lệ -> Đẩy lên S3.
 
-### Slide 13: Demo giao diện xem tài liệu trực tuyến (Document Viewer UI Demo)
-* **Tiêu đề**: Trình Xem Tài Liệu Trực Tuyến Tải Từ AWS S3
+### Slide 11: Thiết lập bảo mật AWS S3 Private & Phân quyền IAM Policy
+* **Tiêu đề**: Thiết Lập Bảo Mật S3 Bucket Private & AWS IAM
 * **Nội dung hiển thị**:
-  * **Bộ đọc PDF tích hợp (Embedded PDF Viewer)**: Nhúng trực tiếp file PDF trong iframe giao diện web, hỗ trợ phóng to, thu nhỏ và cuộn trang mượt mà.
-  * **Hiển thị hình ảnh trực tiếp (Image Preview)**: Tự động render định dạng ảnh JPG, PNG, WEBP mà không cần tải về máy tính cá nhân.
-  * **Không lộ liên kết**: Luồng dữ liệu file được đẩy trực tiếp từ proxy server vào bộ nhớ tạm của thẻ iframe.
-* **Ý tưởng thiết kế**: Ảnh chụp màn hình trang chi tiết tài liệu học tập PDF hiển thị mượt mà trên trình duyệt web, không có dấu vết của đường dẫn S3 công khai.
+  * **Block Public Access**: Kích hoạt tính năng khóa toàn diện mọi quyền truy cập công khai từ bên ngoài Internet vào bucket `cloudstudy-2026`.
+  * **IAM User chuyên dụng**: Tạo một User con riêng biệt `cloudstudy-dev-new` chỉ phục vụ việc chạy mã nguồn.
+  * **Đặc quyền tối thiểu (Least Privilege)**: IAM User chỉ có đúng 3 quyền cơ bản: `s3:PutObject` (Tải lên), `s3:GetObject` (Tải xuống), `s3:DeleteObject` (Xóa) trên Bucket chỉ định.
+* **Ý tưởng thiết kế**: Sơ đồ một chiếc khóa bảo mật có nhãn "IAM Policy", chỉ mở được đúng chiếc hộp S3 Bucket `cloudstudy-2026` chỉ định, các hộp tài nguyên khác bị khóa chặt.
 
-### Slide 14: Tách biệt logic dữ liệu (Database Metadata vs AWS S3 Binary)
-* **Tiêu đề**: Kiến Trúc Tách Biệt Metadata & Dữ Liệu Nhị Phân
+### Slide 12: Cơ chế xác thực lập trình tới S3 Bucket qua HMAC SigV4
+* **Tiêu đề**: Cơ Chế Khởi Tạo & Xác Thực Kết Nối AWS S3
 * **Nội dung hiển thị**:
-  * **Database (MongoDB)**: Đảm nhận lưu trữ cấu trúc liên kết và tìm kiếm nhanh.
-  * **AWS S3 Cloud**: Đảm nhận việc cất giữ file nhị phân lớn.
-  * **Ưu điểm**:
-    * Giảm dung lượng cơ sở dữ liệu xuống mức tối thiểu.
-    * Tăng tốc độ backup và restore database.
-    * Tối ưu hóa chi phí vận hành CSDL trên đám mây.
-* **Ý tưởng thiết kế**: Biểu diễn mô hình so sánh giữa Database truyền thống (phình to do ôm file) và Database Cloud hiện đại (chỉ quản lý liên kết metadata nhẹ nhàng).
+  * **Cấu hình an toàn (.env)**: Sử dụng các biến `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_BUCKET_NAME` và `AWS_REGION` (`ap-southeast-2` - Sydney).
+  * **Ký số Signature Version 4 (SigV4)**: Server không gửi Secret Key trực tiếp. Thay vào đó, SDK dùng Secret Key để ký số HMAC mã hóa các yêu cầu HTTP gửi sang AWS.
+* **Ý tưởng thiết kế**: Sơ đồ luồng: NodeJS Server (sử dụng Access Key ID & Secret) -> Sinh mã ký số HMAC -> AWS S3 giải mã xác minh -> Phản hồi dữ liệu tệp tin.
 
-### Slide 15: Thiết kế Document Schema chứa tham chiếu S3 Object Key
+### Slide 13: Thiết kế cơ sở dữ liệu lưu trữ Metadata (MongoDB Document Schema)
 * **Tiêu đề**: Lược Đồ Dữ Liệu Document Schema Tham Chiếu S3
 * **Nội dung hiển thị**:
   * **Trường `s3Key` & `s3Url` (String)**: Lưu trữ khóa định danh S3 Key và đường dẫn liên kết URL đầy đủ tới file.
   * **Trường `fileName` (String)**: Tên gốc của tệp tin hiển thị cho sinh viên.
   * **Trường `fileSize` & `fileType`**: Kích thước file tính bằng Bytes và định dạng MIME của tệp tin.
   * **Trường `folderId` (ObjectId)**: Liên kết tới Folder cha chứa tài liệu này.
-  * **Trường `owner` (ObjectId)**: Liên kết tới User sở hữu tệp tin.
 * **Ý tưởng thiết kế**: Hình ảnh cấu trúc một Document Schema trong Mongoose ODM, làm nổi bật kiểu dữ liệu của các trường `s3Key`, `fileName`, `fileSize` và các khóa liên kết MongoDB.
 
-### Slide 16: Cơ chế quản lý & Xóa đệ quy tệp tin trên AWS S3
-* **Tiêu đề**: Thuật Toán Xóa Đệ Quy Đồng Bộ Trên AWS S3
+### Slide 14: Tính năng 5 - Tải xuống tài liệu bảo mật qua Stream Proxy
+* **Tiêu đề**: Kiến Trúc Download Tệp An Toàn Bằng NodeJS Proxy
 * **Nội dung hiển thị**:
-    * Quét đệ quy lấy toàn bộ danh sách `s3Key` của các tài liệu trong thư mục con.
-    * Tạo mảng chứa các định dạng đối tượng cần xóa.
-    * Gọi API S3 xóa hàng loạt file vật lý trên đám mây chỉ trong một request đơn lẻ.
-* **Ý tưởng thiết kế**: Sơ đồ luồng: Trigger xóa Folder cha -> Đệ quy quét lấy danh sách con -> Xóa AWS S3 file vật lý -> Xóa MongoDB record -> Phản hồi kết quả.
+  * **Không để lộ S3 URL**: Trình duyệt người dùng chỉ thấy liên kết trung gian của Web Server (Ví dụ: `/documents/download/:id`).
+  * **Đọc dữ liệu dạng Luồng (Stream)**: Server Node.js gọi `GetObjectCommand` lấy luồng dữ liệu (`ReadableStream`) từ S3 về.
+  * **Pipe Stream**: Sử dụng hàm `stream.pipe(res)` truyền trực tiếp dữ liệu thô về trình duyệt, giải phóng RAM server tối đa.
+* **Ý tưởng thiết kế**: Đặt file ảnh sơ đồ luồng tải xuống "s3_architecture_diagram.png" (hoặc "s3_visual_architecture_1782834328077.png") làm hình minh họa chính cho slide này.
 
-### Slide 17: Demo giao diện Dashboard thống kê lưu trữ AWS S3 (S3 Storage Stats UI)
-* **Tiêu đề**: Trực Quan Hóa Thống Kê Dung Lượng Lưu Trữ S3
+### Slide 15: Tính năng 6 - Xem trước PDF & Hình ảnh trực tuyến (Viewer UI Demo)
+* **Tiêu đề**: Trình Xem Tài Liệu Trực Tuyến Tải Từ AWS S3
 * **Nội dung hiển thị**:
-  * **Đếm thời gian thực (Real-time Count)**: Tự động đếm tổng số thư mục và số lượng file tài liệu đang lưu trên S3.
-  * **Biểu thị phần trăm (Capacity Graph)**: Biểu đồ thanh tiến trình hiển thị tỷ lệ dung lượng đã sử dụng trên tổng định mức Cloud cấp phát.
-  * **Quy đổi tự động (Dynamic Bytes)**: Sử dụng thuật toán tự động quy đổi kích thước file thô từ Bytes sang các đơn vị hiển thị thân thiện như KB, MB, GB.
-* **Ý tưởng thiết kế**: Đặt file ảnh "ai_study_assistant_ui_mockup.png" (hoặc ảnh chụp màn hình Dashboard thực tế của dự án) thể hiện thanh tiến trình dung lượng bộ nhớ.
+  * **Embedded PDF Viewer**: Nhúng trực tiếp file PDF trong iframe giao diện web, hỗ trợ đọc bài giảng trực tiếp không cần tải tệp về thiết bị.
+  * **Hiển thị hình ảnh trực tiếp (Image Preview)**: Tự động render định dạng ảnh JPG, PNG, WEBP từ S3 proxy ngay trên trình duyệt.
+  * **Bảo mật**: Không hiển thị đường dẫn gốc của AWS S3 trong thuộc tính nguồn (`src`) của thẻ iframe hay thẻ image.
+* **Ý tưởng thiết kế**: Ảnh chụp màn hình trang chi tiết tài liệu học tập PDF hiển thị mượt mà trên trình duyệt web, không có dấu vết của đường dẫn S3 công khai.
 
-### Slide 18: Kiểm soát định dạng & Giới hạn dung lượng trước khi đẩy lên S3
-* **Tiêu đề**: Kiểm Soát Tài Nguyên File Tải Lên Đám Mây
+### Slide 16: Tính năng 7 & 8 - Tìm kiếm nhanh toàn văn & Xóa tài liệu đồng bộ
+* **Tiêu đề**: Tìm Kiếm Thông Minh & Quy Trình Xóa Đồng Bộ
 * **Nội dung hiển thị**:
-  * **Mục tiêu**: Tiết kiệm dung lượng S3, tránh mã độc tấn công (malicious file upload).
-  * **Giới hạn dung lượng**: Cấu hình bộ lọc giới hạn kích thước tối đa 10MB cho mỗi tệp tải lên.
-  * **Bộ lọc MIME type (File Filter)**: Chỉ chấp nhận các định dạng học tập an toàn:
-    * Tài liệu: PDF, DOCX, PPTX, XLSX, ZIP.
-    * Hình ảnh: JPG, JPEG, PNG, WEBP.
-* **Ý tưởng thiết kế**: Sơ đồ khối lọc file đầu vào: Client gửi file -> Kiểm tra dung lượng (<10MB?) -> Kiểm tra định dạng (MIME?) -> Hợp lệ -> Đẩy lên S3.
+  * **Tìm kiếmRegex**: Sử dụng biểu thức chính quy (Regex) của MongoDB quét nhanh qua database để tìm kiếm không dấu/không biệt chữ hoa-thường.
+  * **Quy trình xóa đồng bộ**: Lấy `s3Key` từ MongoDB -> Gọi dịch vụ AWS S3 xóa file thô bằng `DeleteObjectCommand` -> Xóa vĩnh viễn bản ghi metadata khỏi MongoDB Atlas.
+  * **Tính toàn vẹn dữ liệu**: Nếu xóa file trên S3 lỗi, hệ thống chặn không cho xóa metadata trong DB để tránh hiện tượng "tệp mồ côi".
+* **Ý tưởng thiết kế**: Sơ đồ luồng: Click Xóa file -> Lấy s3Key -> Gọi API S3 xóa file thô -> Xác nhận thành công -> Gọi MongoDB xóa metadata -> Phản hồi kết quả.
 
-### Slide 19: Xử lý ngoại lệ & Lỗi kết nối đám mây AWS S3
-* **Tiêu đề**: Xử Lý Lỗi Và Ngoại Lệ Khi Kết Nối AWS S3
+### Slide 17: Tính năng 9 - Trợ lý học tập AI hỗ trợ phân tích tài liệu trực tiếp
+* **Tiêu đề**: Trợ Lý Học Tập Trí Tuệ Nhân Tạo AI Tích Hợp
 * **Nội dung hiển thị**:
-  * **Các lỗi thường gặp**: Sai thông tin Access Keys, lỗi timeout do kết nối mạng đám mây chập chờn, lỗi xóa file không tồn tại.
-  * **Cơ chế Try-Catch**: Đảm bảo lỗi từ AWS S3 SDK không làm sập Web Server Node.js, duy trì hệ thống hoạt động liên tục.
-  * **Ghi log lỗi (Logging)**: Hệ thống ghi log chi tiết mã lỗi từ AWS để dễ debug trong môi trường production đám mây.
-* **Ý tưởng thiết kế**: Một sơ đồ xử lý lỗi: Gọi API S3 -> Lỗi xảy ra? -> Có -> Bắt lỗi bằng Try-Catch -> Ghi log lỗi -> Hiển thị thông báo thân thiện cho client.
+  * **Hỏi đáp bám sát tài liệu**: Trợ lý AI đọc dữ liệu văn bản thô (hoặc base64 PDF/ảnh) từ S3 gửi lên Google Gemini API làm ngữ cảnh phân tích.
+  * **Các tiện ích nhanh**: Hỗ trợ tóm tắt ý chính của bài giảng, giải thích công thức phức tạp, dịch thuật tiếng Anh chuyên ngành.
+  * **Giao diện Split Screen**: Sinh viên vừa đọc PDF bên trái, vừa chat hỏi đáp với AI bên phải vô cùng trực quan.
+* **Ý tưởng thiết kế**: Đặt file ảnh "ai_study_assistant_ui_mockup.png" làm hình minh họa chính cho slide này.
 
-### Slide 20: Tổng kết & Định hướng tối ưu hóa lưu trữ đám mây
-* **Tiêu đề**: Tổng Kết Kiến Trúc & Định Hướng Nâng Cấp S3
+### Slide 18: Đề xuất Tính năng Đột phá & Ưu việt của Cloud Study
+* **Tiêu đề**: Định Hướng Phát Triển Tính Năng Đám Mây Đột Phá
 * **Nội dung hiển thị**:
-  * **Kết quả**: Hệ thống quản lý tài liệu vận hành trơn tru trên kiến trúc Stateless, bảo mật S3 Private hoàn toàn, truyền tải Stream tối ưu.
-  * **Định hướng tương lai**:
-    * **AWS S3 Glacier**: Cấu hình S3 Lifecycle Policies tự động chuyển các tài liệu cũ không truy cập trong 6 tháng xuống Archive Glacier để tiết kiệm 90% chi phí lưu trữ.
-    * **AWS CloudFront**: Tích hợp CDN CloudFront của Amazon để cache file ở các máy chủ vùng biên, tăng tốc độ tải file của người dùng toàn cầu.
-* **Ý tưởng thiết kế**: Sơ đồ thể hiện chu kỳ sống (Lifecycle) của file trên S3: S3 Standard -> 30 ngày -> S3 Standard-IA -> 180 ngày -> S3 Glacier.
+  * **Tự động hóa Metadata bằng AI**: Tự động trích xuất nội dung bài giảng, tóm tắt ý chính và sinh nhãn gán thẻ (tags) ngay khi lưu file thô lên S3.
+  * **Chia sẻ an toàn tự hủy (Pre-signed URL)**: Sinh đường dẫn liên kết tải tạm thời tự hủy sau 1 giờ hoặc giới hạn số lần tải để chia sẻ dữ liệu tuyệt đối an toàn.
+  * **Quản lý phiên bản & So sánh (AI Version Diff)**: Sử dụng S3 Versioning lưu vết lịch sử tệp tin và dùng AI để liệt kê các điểm sửa đổi giữa các phiên bản.
+  * **Tự động tối ưu chi phí (Glacier Lifecycle)**: Tự động phân tích tần suất sử dụng tệp để chuyển tài liệu cũ xuống Archive Glacier giúp tiết kiệm 90% chi phí.
+* **Ý tưởng thiết kế**: Sơ đồ trung tâm thể hiện 4 tính năng đột phá: AI Metadata, Pre-signed URL, AI Version Diff và S3 Glacier, kết nối với logo của AWS S3 và MongoDB Atlas.
