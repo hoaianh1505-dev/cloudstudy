@@ -36,6 +36,32 @@
             const isImage = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(docExt);
             const isPdf = docExt === 'pdf';
             const isVideo = ['mp4', 'mkv', 'avi', 'mov'].includes(docExt);
+            const fileTypeLabelMap = {
+              'application/pdf': 'PDF',
+              'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
+              'application/msword': 'DOC',
+              'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PPTX',
+              'application/vnd.ms-powerpoint': 'PPT',
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'XLSX',
+              'application/vnd.ms-excel': 'XLS',
+              'image/jpeg': 'JPEG',
+              'image/png': 'PNG',
+              'image/webp': 'WEBP',
+              'image/gif': 'GIF',
+              'video/mp4': 'MP4',
+              'video/x-matroska': 'MKV',
+              'video/x-msvideo': 'AVI',
+              'video/quicktime': 'MOV',
+              'application/zip': 'ZIP',
+              'text/plain': 'TXT',
+              'text/markdown': 'MD',
+              'application/json': 'JSON',
+              'text/html': 'HTML',
+              'text/css': 'CSS',
+              'application/javascript': 'JS'
+            };
+            const fileTypeLabel = fileTypeLabelMap[doc.fileType] || doc.fileType.toUpperCase();
+            const deleteRedirectUrl = doc.folderId ? `/folder/${doc.folderId._id}` : '/folders';
           %>
           <% if (isImage) { %>
             <div class="preview-img-container border rounded overflow-hidden shadow-sm mb-3" style="width: 100%; max-height: 240px;">
@@ -69,7 +95,7 @@
             <a href="/document/<%= doc._id %>/download" class="btn btn-primary btn-lg py-2.5">
               <i class="bi bi-cloud-arrow-down-fill me-2"></i> Tải file xuống
             </a>
-            <button class="btn btn-outline-danger" onclick="deleteDocument('<%= doc._id %>', '<%= doc.folderId ? '/folder/' + doc.folderId._id : '/folders' %>')">
+            <button class="btn btn-outline-danger" onclick="deleteDocument('<%= doc._id %>', '<%= deleteRedirectUrl %>')">
               <i class="bi bi-trash-fill me-2"></i> Xóa tài liệu
             </button>
           </div>
@@ -89,7 +115,10 @@
               </tr>
               <tr>
                 <td class="text-muted fw-semibold ps-0">Định dạng file:</td>
-                <td><code class="text-secondary"><%= doc.fileType %></code></td>
+                <td>
+                  <span class="badge bg-light text-dark border"><%= fileTypeLabel %></span>
+                  <div class="text-muted small mt-1"><code class="text-secondary"><%= doc.fileType %></code></div>
+                </td>
               </tr>
               <tr>
                 <td class="text-muted fw-semibold ps-0">Dung lượng:</td>
