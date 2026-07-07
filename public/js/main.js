@@ -305,6 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial theme icon update on load
   const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
   updateThemeIcon(currentTheme);
+  setupUploadDropzones();
 });
 
 // Toggle Light/Dark Theme
@@ -326,6 +327,85 @@ function updateThemeIcon(theme) {
     } else {
       icon.className = 'bi bi-moon-stars-fill themeToggleIconClass';
     }
+  });
+}
+
+function setupUploadDropzones() {
+  const dropzones = document.querySelectorAll('[data-upload-dropzone]');
+
+  dropzones.forEach(dropzone => {
+    const form = dropzone.closest('form');
+    const fileInput = dropzone.querySelector('input[type="file"]') || form?.querySelector('input[type="file"]');
+    const browseBtn = dropzone.querySelector('[data-upload-browse]');
+    const fileNameTarget = dropzone.querySelector('[data-upload-filename]');
+
+    if (!fileInput) {
+      return;
+    }
+
+    const updateFileName = () => {
+      if (!fileNameTarget) {
+        return;
+      }
+
+      if (fileInput.files && fileInput.files[0]) {
+        fileNameTarget.textContent = `Đã chọn file: ${fileInput.files[0].name}`;
+        fileNameTarget.classList.remove('d-none');
+        dropzone.classList.add('has-file');
+      } else {
+        fileNameTarget.textContent = '';
+        fileNameTarget.classList.add('d-none');
+        dropzone.classList.remove('has-file');
+      }
+    };
+
+    const setFiles = (files) => {
+      if (!files || files.length === 0) {
+        return;
+      }
+
+      const dataTransfer = new DataTransfer();
+      Array.from(files).forEach(file => dataTransfer.items.add(file));
+      fileInput.files = dataTransfer.files;
+      fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+      updateFileName();
+    };
+
+    dropzone.addEventListener('dragenter', (event) => {
+      event.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', (event) => {
+      if (!dropzone.contains(event.relatedTarget)) {
+        dropzone.classList.remove('dragover');
+      }
+    });
+
+    dropzone.addEventListener('drop', (event) => {
+      event.preventDefault();
+      dropzone.classList.remove('dragover');
+      setFiles(event.dataTransfer.files);
+    });
+
+    if (browseBtn) {
+      browseBtn.addEventListener('click', () => fileInput.click());
+    }
+
+    dropzone.addEventListener('click', (event) => {
+      if (event.target.closest('button, input, select, a, label')) {
+        return;
+      }
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', updateFileName);
+    updateFileName();
   });
 }
 

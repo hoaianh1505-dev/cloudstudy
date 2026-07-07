@@ -82,6 +82,34 @@ h1, h2, h3, h4, h5, h6, .brand-font {
   border-color: rgba(99, 102, 241, 0.2);
 }
 
+/* Upload drag-and-drop area */
+.upload-dropzone {
+  border: 2px dashed rgba(99, 102, 241, 0.45);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.04), rgba(168, 85, 247, 0.03));
+  transition: all 0.2s ease;
+}
+
+.upload-dropzone--compact {
+  padding: 0.75rem;
+}
+
+.upload-dropzone.dragover {
+  border-color: var(--primary-color);
+  background: rgba(99, 102, 241, 0.12);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+  transform: translateY(-1px);
+}
+
+.upload-dropzone.has-file {
+  border-color: var(--primary-hover);
+}
+
+.upload-dropzone .btn {
+  position: relative;
+  z-index: 2;
+}
+
 /* Sidebar styling */
 .sidebar {
   width: var(--sidebar-width);
