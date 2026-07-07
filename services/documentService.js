@@ -57,7 +57,7 @@ export const getDownloadStream = async (docId, userId) => {
   }
 
   const stream = await s3Service.getFileStream(doc.s3Key);
-  return { stream, fileName: doc.fileName, fileType: doc.fileType };
+  return { stream, fileName: normalizeVietnameseFilename(doc.fileName), fileType: doc.fileType };
 };
 
 export const deleteDocument = async (docId, userId) => {

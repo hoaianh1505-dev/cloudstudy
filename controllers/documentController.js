@@ -1,6 +1,6 @@
 import * as documentService from '../services/documentService.js';
 import { formatBytes } from '../services/dashboardService.js'; // re-use formatBytes
-import { toContentDispositionFilename } from '../utils/filenameHelper.js';
+import { normalizeVietnameseFilename, toContentDispositionFilename } from '../utils/filenameHelper.js';
 
 export const getUploadPage = (req, res) => {
   res.render('upload', {
@@ -35,9 +35,10 @@ export const getDocumentDetail = async (req, res) => {
     const docId = req.params.id;
 
     const details = await documentService.getDocumentDetails(docId, userId);
+    const safeFileName = normalizeVietnameseFilename(details.doc.fileName);
 
     res.render('document', {
-      title: `${details.doc.fileName} - Chi tiết`,
+      title: `${safeFileName} - Chi tiết`,
       doc: details.doc,
       breadcrumbs: details.breadcrumbs,
       isImage: details.isImage,
