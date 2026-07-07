@@ -28,8 +28,8 @@ function getSwalConfig() {
   return {
     background: isDark ? '#111827' : '#ffffff',
     color: isDark ? '#f1f5f9' : '#1e293b',
-    confirmButtonColor: '#6366f1',
-    cancelButtonColor: '#6b7280',
+    confirmButtonColor: '#0284c7', // <-- Đổi từ màu tím cũ sang màu Xanh Dương (Blue) ở đây
+    cancelButtonColor: '#6b7280',  // Màu xám của nút Hủy (giữ nguyên vì nó là màu phẳng trung tính)
   };
 }
 

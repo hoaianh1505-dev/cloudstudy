@@ -2,9 +2,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --primary-color: #6366f1;
-  --primary-hover: #4f46e5;
-  --secondary-color: #a855f7;
+  --primary-color: #0284c7;    /* Xanh dương chủ đạo (Light Blue) */
+  --primary-hover: #0369a1;    /* Xanh dương đậm hơn khi di chuột vào */
+  --secondary-color: #0284c7;  /* ÉP BUỘC màu thứ hai cũng là Xanh dương (Thay cho màu tím cũ) */
   --dark-bg: #0f172a;
   --card-bg: rgba(255, 255, 255, 0.85);
   --glass-bg: rgba(255, 255, 255, 0.45);
@@ -34,13 +34,13 @@
 body {
   font-family: 'Inter', sans-serif;
   background-color: var(--body-bg);
+  /* Tạo họa tiết các ô vuông mờ ẩn hiện nhẹ nhàng */
   background-image: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
-    radial-gradient(at 50% 0%, rgba(168, 85, 247, 0.05) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.05) 0px, transparent 50%);
+    linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px; /* Kích thước ô lưới */
   color: var(--text-color);
   min-height: 100vh;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -86,7 +86,7 @@ h1, h2, h3, h4, h5, h6, .brand-font {
 .upload-dropzone {
   border: 2px dashed rgba(99, 102, 241, 0.45);
   border-radius: 18px;
-  background: linear-gradient(180deg, rgba(99, 102, 241, 0.04), rgba(168, 85, 247, 0.03));
+  background-color: var(--glass-bg); /* Tự động ăn theo màu nền kính mờ của hệ thống */
   transition: all 0.2s ease;
 }
 
@@ -487,9 +487,7 @@ h1, h2, h3, h4, h5, h6, .brand-font {
 .modal-title {
   font-family: 'Outfit', sans-serif;
   font-size: 1.25rem !important;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--primary-color); /* Sử dụng 1 màu phẳng duy nhất (Xanh/Tím chủ đạo) */
   font-weight: 700;
 }
 
