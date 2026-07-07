@@ -39,17 +39,17 @@
           %>
           <% if (isImage) { %>
             <div class="preview-img-container border rounded overflow-hidden shadow-sm mb-3" style="width: 100%; max-height: 240px;">
-              <img src="/document/<%= doc._id %>/download" class="img-fluid w-100" style="object-fit: contain; max-height: 240px;" alt="<%= doc.fileName %>">
+              <img src="/document/<%= doc._id %>/preview" class="img-fluid w-100" style="object-fit: contain; max-height: 240px;" alt="<%= doc.fileName %>">
             </div>
             <span class="badge bg-purple bg-opacity-10 text-purple mb-2 px-3 py-2"><i class="bi bi-image me-1"></i>Hình ảnh</span>
           <% } else if (isPdf) { %>
             <div class="preview-pdf-container border rounded overflow-hidden shadow-sm mb-3" style="width: 100%; height: 350px;">
-              <iframe src="/document/<%= doc._id %>/download#toolbar=0" style="width: 100%; height: 100%; border: none;"></iframe>
+              <iframe src="/document/<%= doc._id %>/preview#toolbar=0" style="width: 100%; height: 100%; border: none;"></iframe>
             </div>
-            <span class="badge bg-pdf mb-2 px-3 py-2"><i class="bi bi-file-earmark-pdf-fill me-1"></i>Tài liệu PDF</span>
+            <span class="badge bg-pdf mb-2 px-3 py-2"><i class="bi bi-file-earmark-pdf-fill me-1"></i>Preview PDF</span>
           <% } else if (isVideo) { %>
             <div class="preview-video-container border rounded overflow-hidden shadow-sm mb-3" style="width: 100%; max-height: 240px;">
-              <video src="/document/<%= doc._id %>/download" controls class="w-100" style="max-height: 240px; object-fit: contain;"></video>
+              <video src="/document/<%= doc._id %>/preview" controls class="w-100" style="max-height: 240px; object-fit: contain;"></video>
             </div>
             <span class="badge bg-video mb-2 px-3 py-2"><i class="bi bi-film me-1"></i>Video</span>
           <% } else { %>
@@ -64,6 +64,7 @@
             <i class="bi <%= iconClass %> display-1 mb-4"></i>
             <span class="file-badge <%= badgeColor %> mb-3 px-3 py-2 text-uppercase fs-6"><%= docExt %></span>
           <% } %>
+          <div class="text-muted small mt-1 mb-3">Khu vực này hiển thị preview trực tiếp nếu file hỗ trợ. Nếu không, bạn có thể tải file xuống ở nút bên dưới.</div>
           <div class="w-100 d-grid gap-2">
             <a href="/document/<%= doc._id %>/download" class="btn btn-primary btn-lg py-2.5">
               <i class="bi bi-cloud-arrow-down-fill me-2"></i> Tải file xuống

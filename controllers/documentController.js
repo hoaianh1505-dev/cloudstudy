@@ -65,6 +65,22 @@ export const downloadDocument = async (req, res) => {
   }
 };
 
+export const previewDocument = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const docId = req.params.id;
+
+    const result = await documentService.getDownloadStream(docId, userId);
+    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(result.fileName)}"`);
+    res.setHeader('Content-Type', result.fileType);
+
+    result.stream.pipe(res);
+  } catch (error) {
+    console.error('Error previewing document from S3:', error);
+    res.status(500).send('Không thể xem trước file từ S3 Cloud');
+  }
+};
+
 export const deleteDocument = async (req, res) => {
   try {
     const userId = req.session.userId;

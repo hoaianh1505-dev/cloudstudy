@@ -5,7 +5,7 @@ const storage = multer.memoryStorage();
 
 const allowedDocExts = ['.pdf', '.docx', '.pptx', '.xlsx', '.zip'];
 const allowedImgExts = ['.jpg', '.jpeg', '.png', '.webp'];
-const allowedVidExts = ['.mp4', '.mkv', '.avi', '.mov'];
+const allowedVidExts = ['.mp4', '.mkv', '.avi', '.mov', '.mp3'];
 const allowedTextExts = ['.txt', '.md', '.json', '.js', '.py', '.html', '.css'];
 const allAllowedExts = [...allowedDocExts, ...allowedImgExts, ...allowedVidExts, ...allowedTextExts];
 
