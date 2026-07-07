@@ -2,6 +2,7 @@ import Document from '../models/Document.js';
 import Folder from '../models/Folder.js';
 import * as s3Service from './s3Service.js';
 import { getBreadcrumbs } from '../utils/folderHelper.js';
+import { normalizeVietnameseFilename } from '../utils/filenameHelper.js';
 
 export const uploadDocument = async (file, folderId, userId) => {
   if (!file) {
@@ -9,12 +10,13 @@ export const uploadDocument = async (file, folderId, userId) => {
   }
 
   const destFolderId = folderId && folderId.trim() !== '' ? folderId : null;
+  const normalizedFileName = normalizeVietnameseFilename(file.originalname);
 
   // Upload S3 source file
-  const s3Result = await s3Service.uploadFile(file.buffer, file.originalname, file.mimetype);
+  const s3Result = await s3Service.uploadFile(file.buffer, normalizedFileName, file.mimetype);
 
   const doc = new Document({
-    fileName: file.originalname,
+    fileName: normalizedFileName,
     fileType: file.mimetype,
     fileSize: file.size,
     s3Key: s3Result.key,
@@ -32,6 +34,8 @@ export const getDocumentDetails = async (docId, userId) => {
   if (!doc) {
     throw new Error('Tài liệu không tồn tại');
   }
+
+  doc.fileName = normalizeVietnameseFilename(doc.fileName);
 
   const allFolders = await Folder.find({ owner: userId }).lean();
   const breadcrumbs = doc.folderId ? getBreadcrumbs(doc.folderId._id, allFolders) : [];
@@ -86,10 +90,18 @@ export const searchDocumentsAndFolders = async (query, userId) => {
     fileName: regex
   }).populate('folderId').lean();
 
+  documents.forEach(doc => {
+    doc.fileName = normalizeVietnameseFilename(doc.fileName);
+  });
+
   return { folders, documents };
 };
 
 export const getUserDocuments = async (userId) => {
-  return await Document.find({ owner: userId }).sort({ uploadedAt: -1 }).lean();
+  const documents = await Document.find({ owner: userId }).sort({ uploadedAt: -1 }).lean();
+  documents.forEach(doc => {
+    doc.fileName = normalizeVietnameseFilename(doc.fileName);
+  });
+  return documents;
 };
 

@@ -1,5 +1,6 @@
 import * as documentService from '../services/documentService.js';
 import { formatBytes } from '../services/dashboardService.js'; // re-use formatBytes
+import { toContentDispositionFilename } from '../utils/filenameHelper.js';
 
 export const getUploadPage = (req, res) => {
   res.render('upload', {
@@ -54,7 +55,7 @@ export const downloadDocument = async (req, res) => {
     const docId = req.params.id;
 
     const result = await documentService.getDownloadStream(docId, userId);
-    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(result.fileName)}"`);
+    res.setHeader('Content-Disposition', toContentDispositionFilename(result.fileName));
     res.setHeader('Content-Type', result.fileType);
     
     result.stream.pipe(res);
